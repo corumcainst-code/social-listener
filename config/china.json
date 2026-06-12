@@ -1,0 +1,130 @@
+{
+  "country": "china",
+  "country_emoji": "🇨🇳",
+  "events": [
+    {
+      "name": "Dragon Boat Festival",
+      "location": "Nationwide",
+      "dates": "June 19-21, 2026",
+      "type": "festival",
+      "keywords": [
+        "dragon boat festival china",
+        "端午节 中国"
+      ]
+    },
+    {
+      "name": "Strawberry Music Festival",
+      "location": "Various cities",
+      "dates": "June-July 2026 (Harbin: Jun 13-14; Hohhot: Jul 4-5; more TBC)",
+      "type": "music",
+      "keywords": [
+        "strawberry music festival",
+        "草莓音乐节"
+      ],
+      "notes": "Multi-city touring festival; Harbin edition at Harbin Ice & Snow World; Hohhot edition at Inner Mongolia Shamate"
+    },
+    {
+      "name": "MIDI Music Festival",
+      "location": "Various cities",
+      "dates": "2026",
+      "type": "music",
+      "keywords": [
+        "midi music festival",
+        "迷笛音乐节"
+      ]
+    },
+    {
+      "name": "ChinaJoy",
+      "location": "Shanghai New International Expo Centre (SNIEC), Pudong",
+      "dates": "July 31 - August 3, 2026",
+      "type": "gaming",
+      "keywords": [
+        "chinajoy",
+        "chinajoy 2026",
+        "china digital entertainment"
+      ]
+    },
+    {
+      "name": "Shanghai International Film Festival",
+      "location": "Shanghai",
+      "dates": "June 12-21, 2026",
+      "type": "film",
+      "keywords": [
+        "shanghai film festival",
+        "上海国际电影节"
+      ],
+      "notes": "SIFF 2026, 28th edition. Hotels near venue nearly sold out as of June 5"
+    },
+    {
+      "name": "Golden Week (National Day)",
+      "location": "China-wide",
+      "dates": "October 1-7, 2026",
+      "type": "festival",
+      "keywords": [
+        "golden week china 2026",
+        "national day china"
+      ]
+    },
+    {
+      "name": "Single's Day Festival",
+      "location": "China-wide / Shanghai",
+      "dates": "November 11, 2026",
+      "type": "festival",
+      "keywords": [
+        "singles day china",
+        "11.11 china"
+      ]
+    },
+    {
+      "name": "Chinese New Year 2027",
+      "location": "China-wide",
+      "dates": "February 6, 2027",
+      "type": "festival",
+      "keywords": [
+        "chinese new year 2027",
+        "spring festival 2027",
+        "cny 2027"
+      ]
+    },
+    {
+      "name": "Canton Fair 2027 Spring",
+      "location": "Guangzhou",
+      "dates": "April 15 - May 5, 2027",
+      "type": "conference",
+      "keywords": [
+        "canton fair 2027"
+      ]
+    },
+    {
+      "name": "Formula 1 Chinese Grand Prix",
+      "location": "Shanghai",
+      "dates": "April 2027 (TBC)",
+      "type": "sports",
+      "keywords": [
+        "f1 shanghai 2027",
+        "chinese grand prix 2027"
+      ]
+    },
+    {
+      "name": "Dragon Boat Festival 2027",
+      "location": "China-wide",
+      "dates": "June 2027",
+      "type": "festival",
+      "keywords": [
+        "dragon boat festival china 2027"
+      ]
+    }
+  ],
+  "platforms": [
+    "Reddit (r/China, r/shanghai, r/beijing), Xiaohongshu (小红书), Weibo (微博), Douban (豆瓣), WeChat groups, Zhihu (知乎), Ctrip forums"
+  ],
+  "subreddits": [
+    "China",
+    "shanghai",
+    "beijing"
+  ],
+  "date_range": {
+    "start": "2026-06-12",
+    "end": "2027-06-30"
+  }
+}

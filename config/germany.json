@@ -1,0 +1,176 @@
+{
+  "country": "germany",
+  "country_emoji": "🇩🇪",
+  "events": [
+    {
+      "name": "Southside / Hurricane Festival",
+      "location": "Various",
+      "dates": "June 19-21, 2026",
+      "type": "music",
+      "keywords": [
+        "southside festival",
+        "hurricane festival 2026"
+      ]
+    },
+    {
+      "name": "Fusion Festival",
+      "location": "Lärz",
+      "dates": "June-July 2026",
+      "type": "music",
+      "keywords": [
+        "fusion festival",
+        "fusion lärz 2026"
+      ]
+    },
+    {
+      "name": "Christopher Street Day Berlin",
+      "location": "Berlin",
+      "dates": "July 2026",
+      "type": "festival",
+      "keywords": [
+        "csd berlin",
+        "berlin pride 2026"
+      ]
+    },
+    {
+      "name": "Melt Festival",
+      "location": "Ferropolis",
+      "dates": "July 2026",
+      "type": "music",
+      "keywords": [
+        "melt festival",
+        "melt 2026"
+      ]
+    },
+    {
+      "name": "Splash! Festival",
+      "location": "Ferropolis",
+      "dates": "July 2026",
+      "type": "music",
+      "keywords": [
+        "splash festival",
+        "splash 2026"
+      ]
+    },
+    {
+      "name": "Wacken Open Air 2026",
+      "location": "Wacken, Schleswig-Holstein",
+      "dates": "July 29 - August 1, 2026",
+      "type": "music",
+      "keywords": [
+        "wacken 2026",
+        "wacken open air 2026",
+        "w:o:a 2026"
+      ]
+    },
+    {
+      "name": "Gamescom 2026",
+      "location": "Cologne",
+      "dates": "August 26-30, 2026",
+      "type": "gaming",
+      "keywords": [
+        "gamescom 2026",
+        "gamescom cologne 2026"
+      ]
+    },
+    {
+      "name": "Lollapalooza Berlin 2026",
+      "location": "Berlin (Olympiastadion)",
+      "dates": "July 18-19, 2026",
+      "type": "music",
+      "keywords": [
+        "lollapalooza berlin 2026",
+        "lolla berlin 2026"
+      ]
+    },
+    {
+      "name": "Deichbrand Festival 2026",
+      "location": "Cuxhaven/Nordholz",
+      "dates": "July 16-19, 2026",
+      "type": "music",
+      "keywords": [
+        "deichbrand 2026",
+        "deichbrand festival 2026"
+      ]
+    },
+    {
+      "name": "Oktoberfest",
+      "location": "Munich",
+      "dates": "September 19 - October 4, 2026",
+      "type": "festival",
+      "keywords": [
+        "oktoberfest 2026",
+        "oktoberfest munich"
+      ]
+    },
+    {
+      "name": "Berlin Marathon",
+      "location": "Berlin",
+      "dates": "September 27, 2026",
+      "type": "sports",
+      "keywords": [
+        "berlin marathon 2026"
+      ]
+    },
+    {
+      "name": "Berlin Festival of Lights",
+      "location": "Berlin",
+      "dates": "October 2-11, 2026",
+      "type": "festival",
+      "keywords": [
+        "berlin festival of lights 2026"
+      ]
+    },
+    {
+      "name": "Cologne Carnival",
+      "location": "Cologne",
+      "dates": "February 2027",
+      "type": "festival",
+      "keywords": [
+        "cologne carnival 2027",
+        "karneval koln 2027"
+      ]
+    },
+    {
+      "name": "ITB Berlin (Travel Fair)",
+      "location": "Berlin",
+      "dates": "March 2027",
+      "type": "conference",
+      "keywords": [
+        "itb berlin 2027"
+      ]
+    },
+    {
+      "name": "Berlin Half Marathon",
+      "location": "Berlin",
+      "dates": "April 2027",
+      "type": "sports",
+      "keywords": [
+        "berlin half marathon 2027"
+      ]
+    },
+    {
+      "name": "Rock am Ring / Rock im Park 2027",
+      "location": "Nurburgring / Nuremberg",
+      "dates": "June 2027 (TBC)",
+      "type": "music",
+      "keywords": [
+        "rock am ring 2027",
+        "rock im park 2027"
+      ]
+    }
+  ],
+  "platforms": [
+    "Reddit (r/germany, r/berlin, r/Munich, r/festivals), Facebook groups (WG-Gesucht, Festival Mitfahrgelegenheit), WG-Gesucht forums, Kleinanzeigen"
+  ],
+  "subreddits": [
+    "germany",
+    "berlin",
+    "Munich",
+    "festivals"
+  ],
+  "date_range": {
+    "start": "2026-06-12",
+    "end": "2027-06-30"
+  }
+}

@@ -1,0 +1,197 @@
+{
+  "country": "brazil",
+  "country_emoji": "🇧🇷",
+  "events": [
+    {
+      "name": "São João / Festas Juninas",
+      "location": "Nationwide (esp. Northeast: Campina Grande PB, Caruaru PE, Salvador BA)",
+      "dates": "June 3 - July 5, 2026",
+      "type": "festival",
+      "keywords": [
+        "sao joao",
+        "festas juninas 2026",
+        "festa junina",
+        "sao joao campina grande",
+        "sao joao caruaru"
+      ]
+    },
+    {
+      "name": "Arraial do Pavulagem",
+      "location": "Belém, PA",
+      "dates": "June 14, 21, 28 and July 5, 2026",
+      "type": "festival",
+      "keywords": [
+        "arraial do pavulagem",
+        "arrastoes pavulagem"
+      ]
+    },
+    {
+      "name": "Festival de Inverno Campos do Jordão",
+      "location": "Campos do Jordão, SP",
+      "dates": "July 5-19, 2026",
+      "type": "music",
+      "keywords": [
+        "festival inverno campos jordao",
+        "festival campos jordao 2026"
+      ]
+    },
+    {
+      "name": "Festa do Peão de Barretos",
+      "location": "Barretos, SP",
+      "dates": "August 20-30, 2026",
+      "type": "festival",
+      "keywords": [
+        "festa peao barretos",
+        "barretos rodeo",
+        "barretos 2026"
+      ]
+    },
+    {
+      "name": "Anima Mundi",
+      "location": "Rio de Janeiro / São Paulo",
+      "dates": "July 2026",
+      "type": "film",
+      "keywords": [
+        "anima mundi festival",
+        "anima mundi 2026"
+      ]
+    },
+    {
+      "name": "FIFA World Cup 2026 — Fan Fests in Brazil",
+      "location": "Rio de Janeiro (Copacabana Beach) and other cities",
+      "dates": "June 11 - July 19, 2026",
+      "type": "sports",
+      "keywords": [
+        "copa do mundo 2026 brasil",
+        "world cup fan fest rio",
+        "copa 2026 rio de janeiro"
+      ]
+    },
+    {
+      "name": "Rock in Rio 2026",
+      "location": "Rio de Janeiro (Parque Olímpico)",
+      "dates": "September 4-7 and 11-13, 2026",
+      "type": "music",
+      "keywords": [
+        "rock in rio 2026",
+        "rock in rio hospedagem"
+      ]
+    },
+    {
+      "name": "Festival João Rock",
+      "location": "Ribeirão Preto, SP",
+      "dates": "August 1, 2026",
+      "type": "music",
+      "keywords": [
+        "joao rock 2026",
+        "festival joao rock"
+      ]
+    },
+    {
+      "name": "Capital Moto Week",
+      "location": "Brasília, DF",
+      "dates": "July 23 - August 1, 2026",
+      "type": "festival",
+      "keywords": [
+        "capital moto week 2026",
+        "moto week brasilia"
+      ]
+    },
+    {
+      "name": "São Paulo Grand Prix (F1)",
+      "location": "São Paulo (Interlagos)",
+      "dates": "November 8, 2026",
+      "type": "sports",
+      "keywords": [
+        "gp brazil 2026",
+        "formula 1 sao paulo 2026",
+        "f1 brazil 2026"
+      ]
+    },
+    {
+      "name": "São Paulo Fashion Week",
+      "location": "São Paulo",
+      "dates": "October 2026",
+      "type": "fashion",
+      "keywords": [
+        "spfw 2026",
+        "sao paulo fashion week"
+      ]
+    },
+    {
+      "name": "Oktoberfest Blumenau",
+      "location": "Blumenau",
+      "dates": "October 7-25, 2026",
+      "type": "festival",
+      "keywords": [
+        "oktoberfest blumenau 2026"
+      ]
+    },
+    {
+      "name": "Réveillon / New Year's Eve Copacabana",
+      "location": "Rio de Janeiro",
+      "dates": "December 31, 2026",
+      "type": "festival",
+      "keywords": [
+        "reveillon copacabana",
+        "new years rio",
+        "nye copacabana"
+      ]
+    },
+    {
+      "name": "Carnival Rio 2027",
+      "location": "Rio de Janeiro",
+      "dates": "February 12-17, 2027",
+      "type": "festival",
+      "keywords": [
+        "carnival rio 2027",
+        "carnaval rio 2027",
+        "rio carnival"
+      ]
+    },
+    {
+      "name": "Carnival Salvador 2027",
+      "location": "Salvador",
+      "dates": "February 12-17, 2027",
+      "type": "festival",
+      "keywords": [
+        "carnival salvador 2027",
+        "carnaval salvador"
+      ]
+    },
+    {
+      "name": "Lollapalooza Brazil",
+      "location": "São Paulo",
+      "dates": "March 2027",
+      "type": "music",
+      "keywords": [
+        "lollapalooza brazil 2027",
+        "lollapalooza sao paulo"
+      ]
+    },
+    {
+      "name": "São João 2027",
+      "location": "Northeast Brazil",
+      "dates": "June 2027",
+      "type": "festival",
+      "keywords": [
+        "sao joao 2027",
+        "festas juninas 2027"
+      ]
+    }
+  ],
+  "platforms": [
+    "Reddit (r/brasil, r/saopaulo, r/riodejaneiro, r/viagens, r/Brazil), Facebook groups (Mochileiros Brasil, República Estudantil, Mochileiros.com forum), Twitter/X Brazil, OLX forums, Instagram"
+  ],
+  "subreddits": [
+    "brasil",
+    "saopaulo",
+    "riodejaneiro",
+    "viagens",
+    "Brazil"
+  ],
+  "date_range": {
+    "start": "2026-06-12",
+    "end": "2027-06-30"
+  }
+}

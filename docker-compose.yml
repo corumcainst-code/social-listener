@@ -1,0 +1,13 @@
+version: '3.8'
+
+services:
+  social-listener:
+    build: .
+    container_name: splitstay-social-listener
+    restart: unless-stopped
+    env_file:
+      - .env
+    volumes:
+      - ./data:/app/data      # Persist state between restarts
+      - ./config:/app/config   # Easy config updates
+    command: python -m src.scheduler

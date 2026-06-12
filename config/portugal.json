@@ -1,0 +1,181 @@
+{
+  "country": "portugal",
+  "country_emoji": "🇵🇹",
+  "events": [
+    {
+      "name": "NOS Alive",
+      "location": "Lisbon",
+      "dates": "July 9-11, 2026",
+      "type": "music",
+      "keywords": [
+        "nos alive",
+        "nos alive 2026",
+        "nos alive lisbon"
+      ]
+    },
+    {
+      "name": "Rock in Rio Lisboa",
+      "location": "Lisbon",
+      "dates": "June 20-21 & 27-28, 2026",
+      "type": "music",
+      "keywords": [
+        "rock in rio lisbon",
+        "rock in rio lisboa 2026"
+      ]
+    },
+    {
+      "name": "Super Bock Super Rock",
+      "location": "Lisbon",
+      "dates": "July 2026",
+      "type": "music",
+      "keywords": [
+        "super bock super rock",
+        "sbsr 2026"
+      ]
+    },
+    {
+      "name": "MEO Sudoeste",
+      "location": "Zambujeira do Mar",
+      "dates": "August 2026",
+      "type": "music",
+      "keywords": [
+        "meo sudoeste",
+        "sudoeste festival"
+      ]
+    },
+    {
+      "name": "Festas de Lisboa / Santo António",
+      "location": "Lisbon",
+      "dates": "June 12-13, 2026",
+      "type": "festival",
+      "keywords": [
+        "festas de lisboa",
+        "santo antonio lisbon",
+        "santos populares"
+      ]
+    },
+    {
+      "name": "São João do Porto",
+      "location": "Porto",
+      "dates": "June 23-24, 2026",
+      "type": "festival",
+      "keywords": [
+        "sao joao porto",
+        "são joão porto 2026"
+      ]
+    },
+    {
+      "name": "Afro Nation Portugal",
+      "location": "Portimão, Algarve",
+      "dates": "July 3-5, 2026",
+      "type": "music",
+      "keywords": [
+        "afro nation portugal",
+        "afronation portugal 2026",
+        "afro nation portimao",
+        "r/afronationportugal"
+      ]
+    },
+    {
+      "name": "Being Gathering (Boomland)",
+      "location": "Idanha-a-Nova",
+      "dates": "July 1-5, 2026",
+      "type": "festival",
+      "keywords": [
+        "being gathering portugal 2026",
+        "boomland 2026",
+        "boom festival portugal 2026"
+      ]
+    },
+    {
+      "name": "Web Summit",
+      "location": "Lisbon",
+      "dates": "November 11-14, 2026",
+      "type": "tech",
+      "keywords": [
+        "web summit 2026",
+        "web summit lisbon"
+      ]
+    },
+    {
+      "name": "Boom Festival",
+      "location": "Idanha-a-Nova",
+      "dates": "July 2026 (biennial - check)",
+      "type": "music",
+      "keywords": [
+        "boom festival 2026"
+      ]
+    },
+    {
+      "name": "New Year's Eve Funchal (Madeira)",
+      "location": "Funchal, Madeira",
+      "dates": "December 31, 2026",
+      "type": "festival",
+      "keywords": [
+        "madeira nye",
+        "funchal fireworks",
+        "new years madeira"
+      ]
+    },
+    {
+      "name": "Carnival Portugal",
+      "location": "Torres Vedras / Loule",
+      "dates": "February 2027",
+      "type": "festival",
+      "keywords": [
+        "carnival portugal 2027",
+        "carnaval torres vedras"
+      ]
+    },
+    {
+      "name": "Lisbon Marathon",
+      "location": "Lisbon",
+      "dates": "October 2026",
+      "type": "sports",
+      "keywords": [
+        "lisbon marathon 2026"
+      ]
+    },
+    {
+      "name": "Algarve Cup / Surf Events",
+      "location": "Algarve",
+      "dates": "October-November 2026",
+      "type": "sports",
+      "keywords": [
+        "algarve surf 2026",
+        "meo rip curl pro"
+      ]
+    },
+    {
+      "name": "NOS Alive 2027",
+      "location": "Lisbon",
+      "dates": "July 2027 (TBC)",
+      "type": "music",
+      "keywords": [
+        "nos alive 2027"
+      ]
+    },
+    {
+      "name": "Festa de Santo Antonio 2027",
+      "location": "Lisbon",
+      "dates": "June 12-13, 2027",
+      "type": "festival",
+      "keywords": [
+        "santo antonio lisbon 2027",
+        "festas de lisboa 2027"
+      ]
+    }
+  ],
+  "platforms": [
+    "Reddit (r/portugal, r/lisboa, r/Porto), Facebook groups (Lisbon Expats, Porto Digital Nomads), Nomad communities (Lisbon is a major hub), OLX Portugal"
+  ],
+  "subreddits": [
+    "portugal",
+    "lisboa",
+    "Porto"
+  ],
+  "date_range": {
+    "start": "2026-06-12",
+    "end": "2027-06-30"
+  }
+}

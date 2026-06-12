@@ -1,0 +1,229 @@
+{
+  "country": "us",
+  "country_emoji": "🇺🇸",
+  "events": [
+    {
+      "name": "Electric Daisy Carnival (EDC)",
+      "location": "Las Vegas",
+      "dates": "June 2026",
+      "type": "music",
+      "keywords": [
+        "edc las vegas",
+        "edc 2026",
+        "electric daisy carnival"
+      ]
+    },
+    {
+      "name": "Bonnaroo",
+      "location": "Manchester, Tennessee",
+      "dates": "June 2026",
+      "type": "music",
+      "keywords": [
+        "bonnaroo",
+        "bonnaroo 2026"
+      ]
+    },
+    {
+      "name": "Essence Festival",
+      "location": "New Orleans",
+      "dates": "July 2-5, 2026",
+      "type": "music",
+      "keywords": [
+        "essence festival",
+        "essence fest 2026"
+      ]
+    },
+    {
+      "name": "Comic-Con International",
+      "location": "San Diego",
+      "dates": "July 22-26, 2026",
+      "type": "culture",
+      "keywords": [
+        "sdcc",
+        "san diego comic con",
+        "comic con 2026"
+      ]
+    },
+    {
+      "name": "Lollapalooza",
+      "location": "Chicago",
+      "dates": "July 30 - August 2, 2026",
+      "type": "music",
+      "keywords": [
+        "lollapalooza",
+        "lollapalooza chicago 2026"
+      ]
+    },
+    {
+      "name": "MLB All-Star Game",
+      "location": "Philadelphia, Pennsylvania",
+      "dates": "July 10-14, 2026",
+      "type": "sports",
+      "keywords": [
+        "mlb all star 2026",
+        "mlb all star philadelphia",
+        "citizens bank park all star"
+      ]
+    },
+    {
+      "name": "Outside Lands",
+      "location": "San Francisco",
+      "dates": "August 7-9, 2026",
+      "type": "music",
+      "keywords": [
+        "outside lands 2026",
+        "outside lands san francisco",
+        "sfoutsidelands"
+      ]
+    },
+    {
+      "name": "Austin City Limits Festival (ACL)",
+      "location": "Austin, Texas",
+      "dates": "October 2-4 & 9-11, 2026",
+      "type": "music",
+      "keywords": [
+        "acl 2026",
+        "austin city limits 2026",
+        "acl fest 2026"
+      ]
+    },
+    {
+      "name": "FIFA World Cup 2026 (US host cities)",
+      "location": "Multiple US cities",
+      "dates": "June 11 - July 19, 2026",
+      "type": "sports",
+      "keywords": [
+        "world cup 2026 usa",
+        "fifa world cup us",
+        "world cup tickets usa",
+        "world cup accommodation"
+      ]
+    },
+    {
+      "name": "US Open Tennis",
+      "location": "New York",
+      "dates": "August 31 - September 13, 2026",
+      "type": "sports",
+      "keywords": [
+        "us open 2026",
+        "us open tennis",
+        "flushing meadows"
+      ]
+    },
+    {
+      "name": "Burning Man",
+      "location": "Black Rock Desert, Nevada",
+      "dates": "August 30 - September 7, 2026",
+      "type": "festival",
+      "keywords": [
+        "burning man 2026"
+      ]
+    },
+    {
+      "name": "Electric Zoo",
+      "location": "New York",
+      "dates": "August 28-30, 2026",
+      "type": "music",
+      "keywords": [
+        "electric zoo 2026",
+        "ezoo nyc"
+      ]
+    },
+    {
+      "name": "Formula 1 Las Vegas Grand Prix",
+      "location": "Las Vegas",
+      "dates": "November 2026",
+      "type": "sports",
+      "keywords": [
+        "f1 las vegas 2026",
+        "las vegas grand prix"
+      ]
+    },
+    {
+      "name": "Formula 1 Miami Grand Prix",
+      "location": "Miami",
+      "dates": "May 2027 (TBC)",
+      "type": "sports",
+      "keywords": [
+        "f1 miami 2027",
+        "miami grand prix"
+      ]
+    },
+    {
+      "name": "CES",
+      "location": "Las Vegas",
+      "dates": "January 5-8, 2027",
+      "type": "tech",
+      "keywords": [
+        "ces 2027",
+        "ces las vegas"
+      ]
+    },
+    {
+      "name": "SXSW",
+      "location": "Austin",
+      "dates": "March 2027",
+      "type": "tech",
+      "keywords": [
+        "sxsw 2027",
+        "south by southwest"
+      ]
+    },
+    {
+      "name": "Coachella",
+      "location": "Indio, California",
+      "dates": "April 2027",
+      "type": "music",
+      "keywords": [
+        "coachella 2027"
+      ]
+    },
+    {
+      "name": "Ultra Music Festival",
+      "location": "Miami",
+      "dates": "March 2027",
+      "type": "music",
+      "keywords": [
+        "ultra miami 2027",
+        "ultra music festival"
+      ]
+    },
+    {
+      "name": "Super Bowl LXI",
+      "location": "TBC",
+      "dates": "February 2027",
+      "type": "sports",
+      "keywords": [
+        "super bowl 2027",
+        "super bowl lxi"
+      ]
+    },
+    {
+      "name": "New Year's Eve NYC",
+      "location": "New York",
+      "dates": "December 31, 2026",
+      "type": "festival",
+      "keywords": [
+        "nye nyc",
+        "new years eve new york",
+        "times square new year"
+      ]
+    }
+  ],
+  "platforms": [
+    "Reddit (r/festivals, r/EDC, r/bonnaroo, r/comiccon, r/lollapalooza, r/solotravel, r/Craigslist), Facebook groups (Festival Ride & Room Share), Craigslist"
+  ],
+  "subreddits": [
+    "festivals",
+    "EDC",
+    "bonnaroo",
+    "comiccon",
+    "lollapalooza",
+    "solotravel",
+    "Craigslist"
+  ],
+  "date_range": {
+    "start": "2026-06-12",
+    "end": "2027-06-30"
+  }
+}

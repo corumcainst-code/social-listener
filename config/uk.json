@@ -1,0 +1,249 @@
+{
+  "country": "uk",
+  "country_emoji": "🇬🇧",
+  "events": [
+    {
+      "name": "Glastonbury Festival",
+      "location": "Somerset",
+      "dates": "June 24-28, 2026",
+      "type": "music",
+      "keywords": [
+        "glastonbury",
+        "glastonbury 2026",
+        "glastonbury festival"
+      ]
+    },
+    {
+      "name": "Wimbledon",
+      "location": "London",
+      "dates": "June 29 - July 12, 2026",
+      "type": "sports",
+      "keywords": [
+        "wimbledon",
+        "wimbledon 2026",
+        "wimbledon tennis"
+      ]
+    },
+    {
+      "name": "British Grand Prix",
+      "location": "Silverstone",
+      "dates": "July 3-5, 2026",
+      "type": "sports",
+      "keywords": [
+        "silverstone f1",
+        "british grand prix",
+        "british gp 2026"
+      ]
+    },
+    {
+      "name": "BST Hyde Park",
+      "location": "London",
+      "dates": "June-July 2026",
+      "type": "music",
+      "keywords": [
+        "bst hyde park",
+        "hyde park concerts 2026"
+      ]
+    },
+    {
+      "name": "Download Festival",
+      "location": "Donington Park",
+      "dates": "June 12-14, 2026",
+      "type": "music",
+      "keywords": [
+        "download festival",
+        "download festival 2026"
+      ]
+    },
+    {
+      "name": "Isle of Wight Festival",
+      "location": "Isle of Wight",
+      "dates": "June 18-21, 2026",
+      "type": "music",
+      "keywords": [
+        "isle of wight festival",
+        "iow festival 2026"
+      ]
+    },
+    {
+      "name": "ICC Women's T20 World Cup",
+      "location": "Multiple venues (London, Manchester, Leeds, Birmingham, Bristol, Southampton)",
+      "dates": "June 12 - July 5, 2026",
+      "type": "sports",
+      "keywords": [
+        "ICC women's T20 2026",
+        "women's T20 world cup 2026",
+        "T20 world cup england 2026"
+      ]
+    },
+    {
+      "name": "The Open Championship",
+      "location": "Royal Birkdale, Southport",
+      "dates": "July 12-19, 2026",
+      "type": "sports",
+      "keywords": [
+        "the open 2026",
+        "open championship 2026",
+        "royal birkdale 2026"
+      ]
+    },
+    {
+      "name": "Glasgow 2026 Commonwealth Games",
+      "location": "Glasgow, Scotland",
+      "dates": "July 23 - August 2, 2026",
+      "type": "sports",
+      "keywords": [
+        "glasgow 2026",
+        "commonwealth games 2026",
+        "glasgow commonwealth games"
+      ]
+    },
+    {
+      "name": "Edinburgh Festival Fringe",
+      "location": "Edinburgh, Scotland",
+      "dates": "August 7-31, 2026",
+      "type": "arts",
+      "keywords": [
+        "edinburgh fringe 2026",
+        "fringe festival 2026",
+        "edinburgh festival 2026"
+      ]
+    },
+    {
+      "name": "All Points East",
+      "location": "Victoria Park, London",
+      "dates": "August 2026",
+      "type": "music",
+      "keywords": [
+        "all points east 2026",
+        "APE festival 2026"
+      ]
+    },
+    {
+      "name": "Manchester Marathon",
+      "location": "Manchester",
+      "dates": "October 11, 2026",
+      "type": "sports",
+      "keywords": [
+        "manchester marathon 2026"
+      ]
+    },
+    {
+      "name": "Notting Hill Carnival",
+      "location": "London",
+      "dates": "August 30-31, 2026",
+      "type": "festival",
+      "keywords": [
+        "notting hill carnival",
+        "notting hill carnival 2026"
+      ]
+    },
+    {
+      "name": "Creamfields",
+      "location": "Cheshire",
+      "dates": "August 27-30, 2026",
+      "type": "music",
+      "keywords": [
+        "creamfields 2026",
+        "creamfields festival"
+      ]
+    },
+    {
+      "name": "Formula 1 British Grand Prix",
+      "location": "Silverstone",
+      "dates": "July 2027 (TBC)",
+      "type": "sports",
+      "keywords": [
+        "silverstone f1 2027",
+        "british grand prix 2027"
+      ]
+    },
+    {
+      "name": "Six Nations Rugby",
+      "location": "London / Cardiff / Edinburgh",
+      "dates": "February-March 2027",
+      "type": "sports",
+      "keywords": [
+        "six nations 2027",
+        "six nations rugby",
+        "twickenham rugby"
+      ]
+    },
+    {
+      "name": "BAFTA Awards",
+      "location": "London",
+      "dates": "February 2027",
+      "type": "entertainment",
+      "keywords": [
+        "bafta 2027",
+        "bafta awards"
+      ]
+    },
+    {
+      "name": "London Marathon",
+      "location": "London",
+      "dates": "April 25, 2027",
+      "type": "sports",
+      "keywords": [
+        "london marathon 2027"
+      ]
+    },
+    {
+      "name": "Chelsea Flower Show",
+      "location": "London",
+      "dates": "May 2027",
+      "type": "festival",
+      "keywords": [
+        "chelsea flower show 2027"
+      ]
+    },
+    {
+      "name": "Glastonbury 2027",
+      "location": "Somerset",
+      "dates": "June 2027 (TBC)",
+      "type": "music",
+      "keywords": [
+        "glastonbury 2027",
+        "glastonbury festival 2027"
+      ]
+    },
+    {
+      "name": "Wimbledon 2027",
+      "location": "London",
+      "dates": "June-July 2027 (TBC)",
+      "type": "sports",
+      "keywords": [
+        "wimbledon 2027"
+      ]
+    },
+    {
+      "name": "Reading & Leeds Festival",
+      "location": "Reading / Leeds",
+      "dates": "August 28-30, 2026",
+      "type": "music",
+      "keywords": [
+        "reading festival 2026",
+        "leeds festival 2026",
+        "reading and leeds"
+      ]
+    }
+  ],
+  "platforms": [
+    "Reddit (r/london, r/unitedkingdom, r/ukfestivals, r/glastonbury_festival, r/formula1, r/GrandPrixTravel, r/wimbledon, r/downloadfestival, r/edinburghfringe), SpareRoom, Gumtree, Facebook groups (Festival Accommodation UK, London Flatmates, Camp Loner Download)"
+  ],
+  "subreddits": [
+    "london",
+    "unitedkingdom",
+    "ukfestivals",
+    "glastonbury_festival",
+    "formula1",
+    "GrandPrixTravel",
+    "wimbledon",
+    "downloadfestival",
+    "edinburghfringe"
+  ],
+  "date_range": {
+    "start": "2026-06-12",
+    "end": "2027-06-30"
+  }
+}

@@ -1,0 +1,190 @@
+{
+  "country": "taiwan",
+  "country_emoji": "🇹🇼",
+  "events": [
+    {
+      "name": "Dragon Boat Festival",
+      "location": "Nationwide",
+      "dates": "June 2026",
+      "type": "festival",
+      "keywords": [
+        "dragon boat festival taiwan",
+        "端午節"
+      ]
+    },
+    {
+      "name": "Fulong International Sand Sculpture Festival",
+      "location": "Fulong Beach",
+      "dates": "June-July 2026",
+      "type": "arts",
+      "keywords": [
+        "fulong sand sculpture",
+        "福隆沙雕"
+      ]
+    },
+    {
+      "name": "Taipei Film Festival",
+      "location": "Taipei",
+      "dates": "June-July 2026",
+      "type": "film",
+      "keywords": [
+        "taipei film festival",
+        "台北電影節"
+      ]
+    },
+    {
+      "name": "Megaport Festival",
+      "location": "Kaohsiung",
+      "dates": "2026",
+      "type": "music",
+      "keywords": [
+        "megaport festival",
+        "大港開唱"
+      ]
+    },
+    {
+      "name": "Summer Music Festivals Taiwan",
+      "location": "Various",
+      "dates": "June-July 2026",
+      "type": "music",
+      "keywords": [
+        "taiwan music festival 2026",
+        "台灣音樂節"
+      ]
+    },
+    {
+      "name": "S2O Taiwan Songkran Music Festival",
+      "location": "Dajia Riverside Park, Taipei",
+      "dates": "June 13-14, 2026",
+      "type": "music",
+      "keywords": [
+        "s2o taiwan",
+        "songkran taipei 2026",
+        "S2O Taiwan 2026"
+      ]
+    },
+    {
+      "name": "Taiwan International Balloon Festival",
+      "location": "Luye Highland, Taitung",
+      "dates": "July 4 - August 20, 2026",
+      "type": "festival",
+      "keywords": [
+        "taiwan balloon festival 2026",
+        "taitung balloon festival",
+        "熱氣球嘉年華 2026"
+      ]
+    },
+    {
+      "name": "Taipei Film Festival 2026",
+      "location": "Taipei (Zhongshan Hall, SPOT Huashan, Eslite)",
+      "dates": "June 26 - July 11, 2026",
+      "type": "film",
+      "keywords": [
+        "taipei film festival 2026",
+        "台北電影節 2026"
+      ]
+    },
+    {
+      "name": "Lukang Dragon Boat Festival International Championships",
+      "location": "Lukang / Fulu River, Changhua",
+      "dates": "June 19-21, 2026",
+      "type": "sports",
+      "keywords": [
+        "lukang dragon boat 2026",
+        "鹿港龍舟 2026",
+        "international dragon boat championship lukang"
+      ]
+    },
+    {
+      "name": "BTS World Tour — Kaohsiung",
+      "location": "Kaohsiung National Stadium",
+      "dates": "November 19, 21, 22, 2026",
+      "type": "concert",
+      "keywords": [
+        "bts kaohsiung 2026",
+        "bts taiwan 2026",
+        "BTS concert Kaohsiung"
+      ]
+    },
+    {
+      "name": "Springwave Festival 2026",
+      "location": "Taichung",
+      "dates": "October-November 2026",
+      "type": "music",
+      "keywords": [
+        "springwave festival 2026",
+        "春浪音樂節 2026"
+      ]
+    },
+    {
+      "name": "Taiwan East Coast Land Arts Festival",
+      "location": "East Coast, Taitung",
+      "dates": "June 21 - September 29, 2026",
+      "type": "arts",
+      "keywords": [
+        "taiwan east coast arts festival 2026",
+        "東海岸大地藝術節"
+      ]
+    },
+    {
+      "name": "Taipei New Year's Eve Fireworks",
+      "location": "Taipei",
+      "dates": "December 31, 2026",
+      "type": "festival",
+      "keywords": [
+        "taipei 101 fireworks",
+        "new years taipei",
+        "nye taipei"
+      ]
+    },
+    {
+      "name": "Lantern Festival",
+      "location": "Taiwan-wide",
+      "dates": "February 2027",
+      "type": "festival",
+      "keywords": [
+        "taiwan lantern festival 2027",
+        "pingxi sky lantern"
+      ]
+    },
+    {
+      "name": "Taipei Game Show",
+      "location": "Taipei",
+      "dates": "January 2027",
+      "type": "gaming",
+      "keywords": [
+        "taipei game show 2027"
+      ]
+    },
+    {
+      "name": "Computex 2027",
+      "location": "Taipei",
+      "dates": "May-June 2027",
+      "type": "tech",
+      "keywords": [
+        "computex 2027",
+        "computex taipei"
+      ]
+    },
+    {
+      "name": "Dragon Boat Festival 2027",
+      "location": "Taiwan-wide",
+      "dates": "June 2027",
+      "type": "festival",
+      "keywords": [
+        "dragon boat festival taiwan 2027"
+      ]
+    }
+  ],
+  "platforms": [
+    "Reddit (r/taiwan, r/Taipei), PTT (台灣最大論壇), Dcard, Facebook groups (Taipei Expats, Taiwan Travel), LINE groups, Instagram Taiwan travel community"
+  ],
+  "subreddits": [
+    "taiwan",
+    "Taipei"
+  ],
+  "date_range": {
+    "start": "2026-06-12",
+    "end": "2027-06-30"
+  }
+}

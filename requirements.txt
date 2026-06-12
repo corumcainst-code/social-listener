@@ -1,0 +1,8 @@
+praw>=7.7.0           # Reddit API wrapper
+slack-sdk>=3.27.0     # Slack Bot SDK
+apscheduler>=3.10.0   # Cron scheduling
+playwright>=1.44.0    # Web scraping (Trustpilot, Facebook, etc.)
+httpx>=0.27.0         # Async HTTP client
+beautifulsoup4>=4.12  # HTML parsing
+python-dotenv>=1.0.0  # Environment variables
+pydantic>=2.7.0       # Data models

@@ -1,0 +1,280 @@
+{
+  "country": "spain",
+  "country_emoji": "🇪🇸",
+  "events": [
+    {
+      "name": "Formula 1 Barcelona Grand Prix",
+      "location": "Barcelona",
+      "dates": "June 12-14, 2026",
+      "type": "sports",
+      "keywords": [
+        "f1 barcelona",
+        "formula 1 barcelona",
+        "barcelona grand prix",
+        "f1 spain 2026",
+        "spanish grand prix"
+      ]
+    },
+    {
+      "name": "Startup Olé Marbella",
+      "location": "Marbella",
+      "dates": "June 17-18, 2026",
+      "type": "startup",
+      "keywords": [
+        "startup ole marbella",
+        "startup olé"
+      ]
+    },
+    {
+      "name": "Sónar Festival",
+      "location": "Barcelona",
+      "dates": "June 18-20, 2026",
+      "type": "music",
+      "keywords": [
+        "sonar festival",
+        "sonar barcelona",
+        "sónar 2026"
+      ]
+    },
+    {
+      "name": "Sant Joan / Midsummer",
+      "location": "Barcelona",
+      "dates": "June 23, 2026",
+      "type": "festival",
+      "keywords": [
+        "sant joan barcelona",
+        "sant joan 2026"
+      ]
+    },
+    {
+      "name": "Barcelona Pride",
+      "location": "Barcelona",
+      "dates": "June 26 - July 18, 2026",
+      "type": "festival",
+      "keywords": [
+        "barcelona pride",
+        "pride barcelona 2026"
+      ]
+    },
+    {
+      "name": "Vida Festival",
+      "location": "Vilanova i la Geltrú (near Barcelona)",
+      "dates": "July 2-4, 2026",
+      "type": "music",
+      "keywords": [
+        "vida festival",
+        "vida festival 2026"
+      ]
+    },
+    {
+      "name": "Tour de France Grand Départ",
+      "location": "Barcelona / Catalonia",
+      "dates": "July 4-6, 2026",
+      "type": "sports",
+      "keywords": [
+        "tour de france barcelona",
+        "tour de france 2026",
+        "grand depart barcelona"
+      ]
+    },
+    {
+      "name": "Cruïlla Festival",
+      "location": "Barcelona",
+      "dates": "July 8-11, 2026",
+      "type": "music",
+      "keywords": [
+        "cruilla festival",
+        "cruïlla 2026",
+        "cruilla barcelona"
+      ]
+    },
+    {
+      "name": "Grec Festival",
+      "location": "Barcelona",
+      "dates": "June 29 - July 31, 2026",
+      "type": "arts",
+      "keywords": [
+        "grec festival",
+        "grec barcelona"
+      ]
+    },
+    {
+      "name": "BARTS Festival",
+      "location": "Barcelona",
+      "dates": "June 28 - July 24, 2026",
+      "type": "music",
+      "keywords": [
+        "barts festival barcelona"
+      ]
+    },
+    {
+      "name": "Alhambra Venture",
+      "location": "Granada",
+      "dates": "July 9, 2026",
+      "type": "startup",
+      "keywords": [
+        "alhambra venture"
+      ]
+    },
+    {
+      "name": "eCongress Málaga",
+      "location": "Málaga",
+      "dates": "June 19, 2026",
+      "type": "tech",
+      "keywords": [
+        "econgress malaga"
+      ]
+    },
+    {
+      "name": "Festival Internacional de Benicàssim (FIB)",
+      "location": "Benicàssim (near Valencia), Spain",
+      "dates": "July 16-18, 2026",
+      "type": "music",
+      "keywords": [
+        "benicassim festival",
+        "FIB festival 2026",
+        "festival benicassim",
+        "FIB benicassim"
+      ]
+    },
+    {
+      "name": "San Fermín / Running of the Bulls",
+      "location": "Pamplona",
+      "dates": "July 7-14, 2026",
+      "type": "festival",
+      "keywords": [
+        "san fermin 2026",
+        "running of the bulls pamplona",
+        "sanfermin",
+        "pamplona festival"
+      ]
+    },
+    {
+      "name": "MotoGP Catalunya",
+      "location": "Barcelona",
+      "dates": "September 6-7, 2026",
+      "type": "sports",
+      "keywords": [
+        "motogp barcelona",
+        "motogp catalunya 2026",
+        "circuit de barcelona-catalunya"
+      ]
+    },
+    {
+      "name": "La Mercè Festival",
+      "location": "Barcelona",
+      "dates": "September 24-27, 2026",
+      "type": "festival",
+      "keywords": [
+        "la merce",
+        "la merce barcelona",
+        "festes de la merce 2026"
+      ]
+    },
+    {
+      "name": "Primavera Sound",
+      "location": "Barcelona",
+      "dates": "June 4-7, 2027",
+      "type": "music",
+      "keywords": [
+        "primavera sound 2027",
+        "primavera sound barcelona"
+      ]
+    },
+    {
+      "name": "Mobile World Congress",
+      "location": "Barcelona",
+      "dates": "February 22 - March 5, 2027",
+      "type": "tech",
+      "keywords": [
+        "mwc 2027",
+        "mobile world congress",
+        "mwc barcelona"
+      ]
+    },
+    {
+      "name": "FITUR Madrid (Tourism Fair)",
+      "location": "Madrid",
+      "dates": "January 20-24, 2027",
+      "type": "conference",
+      "keywords": [
+        "fitur 2027",
+        "fitur madrid"
+      ]
+    },
+    {
+      "name": "Semana Santa (Holy Week)",
+      "location": "Seville / Spain-wide",
+      "dates": "March 29 - April 4, 2027",
+      "type": "festival",
+      "keywords": [
+        "semana santa 2027",
+        "holy week spain",
+        "semana santa seville"
+      ]
+    },
+    {
+      "name": "Feria de Abril",
+      "location": "Seville",
+      "dates": "April 2027",
+      "type": "festival",
+      "keywords": [
+        "feria de abril 2027",
+        "seville fair",
+        "feria de sevilla"
+      ]
+    },
+    {
+      "name": "San Isidro Festival",
+      "location": "Madrid",
+      "dates": "May 15, 2027",
+      "type": "festival",
+      "keywords": [
+        "san isidro madrid 2027",
+        "san isidro festival"
+      ]
+    },
+    {
+      "name": "Barcelona Open Banc Sabadell (Tennis)",
+      "location": "Barcelona",
+      "dates": "April 2027",
+      "type": "sports",
+      "keywords": [
+        "barcelona open tennis",
+        "banc sabadell open 2027",
+        "atp barcelona"
+      ]
+    },
+    {
+      "name": "Las Fallas",
+      "location": "Valencia",
+      "dates": "March 15-19, 2027",
+      "type": "festival",
+      "keywords": [
+        "las fallas 2027",
+        "fallas valencia",
+        "las fallas festival"
+      ]
+    }
+  ],
+  "platforms": [
+    "reddit",
+    "x_twitter",
+    "facebook",
+    "instagram",
+    "discord",
+    "nomad_communities"
+  ],
+  "subreddits": [
+    "spain",
+    "Barcelona",
+    "Madrid",
+    "festivals",
+    "solotravel",
+    "GrandPrixTravel"
+  ],
+  "date_range": {
+    "start": "2026-06-12",
+    "end": "2027-06-30"
+  }
+}
