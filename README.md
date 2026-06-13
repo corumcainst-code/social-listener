@@ -188,6 +188,37 @@ Current monitored platforms include:
 
 Reddit monitoring is prepared but remains inactive until Reddit credentials are added.
 
+## Compliance & privacy framework
+
+SplitStay Social Listener is designed to monitor public and searchable event/accommodation-related signals only.
+
+The system does not:
+
+* access private groups or locked accounts;
+* bypass login walls, paywalls, robots.txt restrictions, or platform security controls;
+* collect passwords, private messages, hidden comments, or sensitive personal data;
+* automatically contact individuals;
+* sell, export, or share personal data with third parties.
+
+The system is designed to:
+
+* collect only the minimum signal information needed for internal lead review;
+* focus on future events, accommodation-share intent, room-share intent, group-stay intent, and event-related cost-pain signals;
+* filter out irrelevant, past-event, weak, sensitive, or low-quality results;
+* route qualified leads into an internal Slack channel for human review;
+* keep a human decision-maker in the loop before any outreach;
+* support removal, objection, and deletion requests where applicable.
+
+Current limitations:
+
+* The scanner only monitors public/searchable web and social signals.
+* It does not access private groups, private accounts, login-only comment threads, or hidden social content.
+* Reddit monitoring is prepared but inactive until valid Reddit credentials are added.
+* Private-platform or logged-in data access should only be added after a formal legal/privacy review.
+
+Before scaling, enabling automated outreach, adding private-platform credentials, or using the data for direct marketing, SplitStay should complete a formal privacy review covering the UK, EU, US, Brazil, Taiwan, China, and Portugal.
+
+
 ## Reliability notes
 
 * The system runs in two daily batches to reduce timeout risk and keep the scans reliable.
