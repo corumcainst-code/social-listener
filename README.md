@@ -154,20 +154,50 @@ docker-compose up -d
 python -m src.scheduler
 ```
 
-## Schedule
+## ## Schedule
 
-| Scan | Schedule | Description |
-|------|----------|-------------|
-| Country scans ×8 | 15th monthly, 07:00–08:10 UTC by default | All 8 countries staggered |
-| Brand & Competitor | 15th monthly, 08:20 UTC by default | SplitStay mentions + competitors |
-| Price Spikes | 15th monthly, 08:30 UTC by default | Accommodation price alerts |
-| Trustpilot | Daily, 08:00 UTC | New review monitor |
+| Scan                                    | Schedule         | Description                                                                                                                |
+| --------------------------------------- | ---------------- | -------------------------------------------------------------------------------------------------------------------------- |
+| Event & accommodation signals — Batch A | Daily, 07:00 UTC | Scans Spain, UK, US, and Brazil for public event, accommodation-share, room-share, group, and cost-pain signals            |
+| Event & accommodation signals — Batch B | Daily, 07:30 UTC | Scans Germany, Taiwan, China, and Portugal for public event, accommodation-share, room-share, group, and cost-pain signals |
+| Brand & competitor monitoring           | Future module    | Tracks SplitStay mentions and competitor-related signals                                                                   |
+| Price spike monitoring                  | Future module    | Tracks accommodation price increases around priority events                                                                |
+| Trustpilot monitoring                   | Future module    | Monitors new SplitStay reviews once Trustpilot is active                                                                   |
+
+## Current monitoring coverage
+
+The social listener currently monitors 8 priority countries:
+
+* Spain
+* United Kingdom
+* United States
+* Brazil
+* Germany
+* Taiwan
+* China
+* Portugal
+
+The daily scans focus on future events and public/social-web signals where people may be looking for accommodation support, hotel sharing, room sharing, group stays, cheaper options, or event-related travel help.
+
+Current monitored platforms include:
+
+* Facebook
+* Instagram
+* TikTok
+* Telegram
+
+Reddit monitoring is prepared but remains inactive until Reddit credentials are added.
 
 ## Reliability notes
 
-- The scheduler uses one asyncio event loop so scheduled jobs stay attached to the loop that is kept alive.
-- New signal URLs are only marked as known after Slack confirms all signals in the batch were posted.
-- If Slack credentials are missing or posting fails, state is not updated, so leads can be retried.
+* The system runs in two daily batches to reduce timeout risk and keep the scans reliable.
+* Priority events are filtered so the scanner focuses on future events rather than past events.
+* The scanner looks for public/searchable event posts, group pages, social captions, discussion-style signals, and accommodation-related intent.
+* Private groups, locked accounts, hidden comments, or login-only platform content may not be accessible without additional platform credentials or scraper integrations.
+* New signal URLs are only marked as known after Slack confirms the batch was processed.
+* If Slack posting fails, the system avoids marking those leads as completed so they can be retried.
+* Qualified leads are posted into Slack with the country, platform, lead type, score, reason, suggested action, and original source link.
+
 
 ## License
 
