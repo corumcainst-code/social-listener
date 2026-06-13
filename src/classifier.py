@@ -25,7 +25,11 @@ SEEKING_KEYWORDS: list[str] = [
     "share an apartment", "share housing", "split rent",
     "anyone sharing", "who wants to share", "looking to share",
     "share a place", "share accom", "splitting costs",
-    "roommate",
+    "roommate", "room mate", "looking for a room",
+    "looking for accommodation", "looking for accomodation",
+    "looking for hotel", "looking for airbnb", "place to stay",
+    "somewhere to stay", "need accommodation", "need accomodation",
+    "need a hotel", "need a room", "hotel share",
 ]
 
 OFFERING_KEYWORDS: list[str] = [
@@ -40,6 +44,9 @@ COST_PAIN_KEYWORDS: list[str] = [
     "accommodation prices", "hotel prices crazy", "airbnb too expensive",
     "ridiculous prices", "price gouging", "way too much",
     "sold out everywhere", "no affordable", "robbery",
+    "hotels are sold out", "hotels sold out", "hotel sold out",
+    "accommodation sold out", "can't find a hotel",
+    "can't find accommodation", "can't find accomodation",
 ]
 
 GROUP_FORMING_KEYWORDS: list[str] = [
@@ -47,7 +54,8 @@ GROUP_FORMING_KEYWORDS: list[str] = [
     "group of us", "anyone else going", "meet up",
     "looking for a group", "forming a group", "travel group",
     "carpool and share", "festival group", "camp together",
-    "travel together",
+    "travel together", "athlete group", "race group",
+    "hyrox group", "hyrox whatsapp", "hyrox discord",
 ]
 
 
