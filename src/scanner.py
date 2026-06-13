@@ -1,7 +1,9 @@
 """Main scanner — orchestrates platform scanners for a country.
 
-All platform scanners implement the same ``Scanner`` interface, so this
-module simply builds a list and iterates.  No per-platform branching.
+Adds Apify safety controls:
+- SCAN_MAX_EVENTS limits how many events are scanned in one run.
+- SCAN_PLATFORMS limits which scanners run, e.g. "twitter" or "twitter,facebook".
+- SCANNER_TIMEOUT_SECONDS prevents one slow platform from hanging the whole Actor.
 """
 
 from __future__ import annotations
@@ -34,11 +36,36 @@ logger = logging.getLogger(__name__)
 
 CONFIG_DIR = Path(__file__).parent.parent / "config"
 STATE_DIR = Path(__file__).parent.parent / "data" / "state"
+WEB_PLATFORMS = ("facebook", "instagram", "discord", "tiktok", "telegram")
 
 
-# ------------------------------------------------------------------
-# Config / state helpers
-# ------------------------------------------------------------------
+def _int_env(name: str, default: int) -> int:
+    raw = os.getenv(name)
+    if raw in (None, ""):
+        return default
+    try:
+        value = int(str(raw).strip())
+        return value if value > 0 else default
+    except ValueError:
+        logger.warning("Invalid %s=%r — using default %s", name, raw, default)
+        return default
+
+
+def _enabled_platforms() -> set[str] | None:
+    raw = os.getenv("SCAN_PLATFORMS", "").strip()
+    if not raw:
+        return None
+    platforms = {p.strip().lower() for p in raw.replace(";", ",").split(",") if p.strip()}
+    return platforms or None
+
+
+def _platform_enabled(name: str, enabled: set[str] | None) -> bool:
+    if enabled is None:
+        return True
+    if name == "twitter":
+        return "twitter" in enabled or "x" in enabled
+    return name.lower() in enabled
+
 
 def load_config(country: str) -> CountryConfig:
     config_path = CONFIG_DIR / f"{country}.json"
@@ -65,68 +92,82 @@ def save_state(country: str, state: ScanState):
         json.dump(state.model_dump(), f, indent=2, default=str)
 
 
-# ------------------------------------------------------------------
-# Scanner factory
-# ------------------------------------------------------------------
-
 def build_scanners(config: CountryConfig) -> list[Scanner]:
-    """Build the list of scanners for a country, skipping unavailable ones."""
     scanners: list[Scanner] = []
+    enabled = _enabled_platforms()
+    if enabled:
+        logger.info("Platform filter active: %s", ", ".join(sorted(enabled)))
 
-    # Reddit (needs credentials)
     reddit_id = os.getenv("REDDIT_CLIENT_ID")
     reddit_secret = os.getenv("REDDIT_CLIENT_SECRET")
     reddit_ua = os.getenv("REDDIT_USER_AGENT", "SplitStay Social Listener v1.0")
 
-    if reddit_id and reddit_secret:
-        scanners.append(
-            RedditScanner(reddit_id, reddit_secret, reddit_ua, config.subreddits)
-        )
-    else:
-        logger.warning("Reddit credentials not set — skipping Reddit")
+    if _platform_enabled("reddit", enabled):
+        if reddit_id and reddit_secret:
+            scanners.append(RedditScanner(reddit_id, reddit_secret, reddit_ua, config.subreddits))
+        else:
+            logger.warning("Reddit credentials not set — skipping Reddit")
 
-    # Twitter/X (no credentials needed — uses Nitter)
-    scanners.append(TwitterScanner())
+    if _platform_enabled("twitter", enabled):
+        scanners.append(TwitterScanner())
 
-    # Web-search-based platforms (no credentials needed)
-    for platform in ("facebook", "instagram", "discord", "tiktok", "telegram"):
-        scanners.append(WebSearchScanner(platform))
+    for platform in WEB_PLATFORMS:
+        if _platform_enabled(platform, enabled):
+            scanners.append(WebSearchScanner(platform))
 
     return scanners
 
 
-# ------------------------------------------------------------------
-# Main scan
-# ------------------------------------------------------------------
-
 async def scan_country(country: str) -> int:
-    """Run a full scan for one country. Returns number of new signals posted."""
     logger.info("%s", "=" * 40)
     logger.info("Starting scan: %s", country.upper())
     logger.info("%s", "=" * 40)
 
     config = load_config(country)
+
+    max_events = _int_env("SCAN_MAX_EVENTS", 0)
+    if max_events:
+        original_count = len(config.events)
+        config.events = config.events[:max_events]
+        logger.info(
+            "SCAN_MAX_EVENTS active: scanning %s of %s configured events",
+            len(config.events),
+            original_count,
+        )
+
     state = load_state(country)
     scanners = build_scanners(config)
 
-    # Uniform loop — every scanner has the same interface
+    if not scanners:
+        logger.warning("No scanners enabled — nothing to do")
+        return 0
+
+    scanner_timeout = _int_env("SCANNER_TIMEOUT_SECONDS", 120)
+    logger.info("Per-scanner timeout: %s seconds", scanner_timeout)
+
     all_signals = []
     for scanner in scanners:
         logger.info("Scanning %s...", scanner.name)
         try:
-            signals = await scanner.scan(config.events, config.country)
+            signals = await asyncio.wait_for(
+                scanner.scan(config.events, config.country),
+                timeout=scanner_timeout,
+            )
             all_signals.extend(signals)
             logger.info("  %s: %s signals", scanner.name, len(signals))
+        except asyncio.TimeoutError:
+            logger.warning(
+                "  %s timed out after %s seconds — continuing with next scanner",
+                scanner.name,
+                scanner_timeout,
+            )
         except Exception as e:
             logger.error("  %s failed: %s", scanner.name, e)
 
-    # Process & deduplicate
     processor = SignalProcessor(state, max_age_days=60)
     new_signals = processor.process(all_signals)
-
     logger.info("Total: %s raw → %s new signals", len(all_signals), len(new_signals))
 
-    # Post to Slack
     posted = 0
     if new_signals:
         slack_token = os.getenv("SLACK_BOT_TOKEN")
@@ -135,9 +176,7 @@ async def scan_country(country: str) -> int:
 
         if slack_token and channel_id:
             poster = SlackPoster(slack_token, channel_id, darwin_id)
-            posted = poster.post_signals_batch(
-                new_signals, config.country, config.country_emoji
-            )
+            posted = poster.post_signals_batch(new_signals, config.country, config.country_emoji)
             logger.info("Posted %s of %s signals to Slack", posted, len(new_signals))
 
             if posted == len(new_signals):
@@ -145,17 +184,13 @@ async def scan_country(country: str) -> int:
                 processor.trim_state()
                 logger.info("Marked %s signals as known", len(new_signals))
             else:
-                logger.warning(
-                    "Slack did not confirm every signal was posted. "
-                    "State was not updated, so unconfirmed signals can be retried."
-                )
+                logger.warning("Slack did not confirm every signal was posted. State was not updated.")
         else:
             logger.warning("Slack credentials not set — signals not posted")
             logger.warning("State was not updated, so these signals can be retried.")
             for s in new_signals:
                 logger.info("  [%s] %s — %s", s.signal_type.value, s.title[:60], s.url)
 
-    # Save scan metadata and any successfully posted state.
     state.last_scan = datetime.now(timezone.utc).isoformat()
     state.scan_count += 1
     save_state(country, state)
@@ -164,21 +199,12 @@ async def scan_country(country: str) -> int:
     return posted
 
 
-# ------------------------------------------------------------------
-# CLI
-# ------------------------------------------------------------------
-
 def main():
-    parser = argparse.ArgumentParser(
-        description="SplitStay Social Listener — Country Scanner"
-    )
+    parser = argparse.ArgumentParser(description="SplitStay Social Listener — Country Scanner")
     parser.add_argument(
         "--country",
         required=True,
-        choices=[
-            "spain", "uk", "us", "brazil",
-            "germany", "taiwan", "china", "portugal",
-        ],
+        choices=["spain", "uk", "us", "brazil", "germany", "taiwan", "china", "portugal"],
         help="Country to scan",
     )
     args = parser.parse_args()

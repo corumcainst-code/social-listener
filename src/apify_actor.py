@@ -1,13 +1,12 @@
 """Apify Actor runner for one-off Social Listener scans.
 
-This module is intentionally different from ``src.scheduler``.
-The scheduler is designed to stay alive and wait for monthly jobs.
-Apify runs should normally do one job, write output, and finish.
-
-Input example:
+Recommended test input:
 {
   "country": "uk",
-  "notify_slack": true
+  "notify_slack": true,
+  "max_events": 2,
+  "platforms": ["twitter"],
+  "scanner_timeout_seconds": 90
 }
 """
 
@@ -27,30 +26,17 @@ from src.scanner import scan_country
 
 try:
     from apify import Actor
-except Exception:  # pragma: no cover - useful for local fallback
+except Exception:
     Actor = None  # type: ignore[assignment]
 
 
-logging.basicConfig(
-    level=logging.INFO,
-    format="%(asctime)s [%(levelname)s] %(name)s: %(message)s",
-)
+logging.basicConfig(level=logging.INFO, format="%(asctime)s [%(levelname)s] %(name)s: %(message)s")
 logger = logging.getLogger(__name__)
 
-SUPPORTED_COUNTRIES = {
-    "spain",
-    "uk",
-    "us",
-    "brazil",
-    "germany",
-    "taiwan",
-    "china",
-    "portugal",
-}
+SUPPORTED_COUNTRIES = {"spain", "uk", "us", "brazil", "germany", "taiwan", "china", "portugal"}
 
 
 def _as_bool(value: Any, default: bool = True) -> bool:
-    """Parse a flexible boolean input."""
     if value is None:
         return default
     if isinstance(value, bool):
@@ -58,22 +44,36 @@ def _as_bool(value: Any, default: bool = True) -> bool:
     return str(value).strip().lower() in {"1", "true", "yes", "y", "on"}
 
 
+def _as_int(value: Any, default: int) -> int:
+    if value in (None, ""):
+        return default
+    try:
+        parsed = int(str(value).strip())
+        return parsed if parsed > 0 else default
+    except ValueError:
+        return default
+
+
+def _as_platforms(value: Any, default: list[str]) -> list[str]:
+    if value in (None, ""):
+        return default
+    if isinstance(value, list):
+        platforms = [str(item).strip().lower() for item in value if str(item).strip()]
+    else:
+        platforms = [item.strip().lower() for item in str(value).replace(";", ",").split(",") if item.strip()]
+    return platforms or default
+
+
 def _normalise_country(value: Any) -> str:
-    """Return a supported country code, defaulting to UK."""
     country = str(value or "uk").strip().lower()
     if country not in SUPPORTED_COUNTRIES:
-        raise ValueError(
-            f"Unsupported country '{country}'. "
-            f"Use one of: {', '.join(sorted(SUPPORTED_COUNTRIES))}"
-        )
+        raise ValueError(f"Unsupported country '{country}'. Use one of: {', '.join(sorted(SUPPORTED_COUNTRIES))}")
     return country
 
 
 def _post_slack_status(message: str) -> bool:
-    """Post a simple status message to Slack if Slack credentials exist."""
     token = os.getenv("SLACK_BOT_TOKEN")
     channel_id = os.getenv("SLACK_CHANNEL_ID")
-
     if not token or not channel_id:
         logger.warning("Slack status skipped — SLACK_BOT_TOKEN or SLACK_CHANNEL_ID missing")
         return False
@@ -92,13 +92,24 @@ def _post_slack_status(message: str) -> bool:
 
 
 async def _run_from_input(actor_input: dict[str, Any]) -> dict[str, Any]:
-    """Run one country scan from Apify input."""
     country = _normalise_country(actor_input.get("country", "uk"))
     notify_slack = _as_bool(actor_input.get("notify_slack"), default=True)
+
+    # Safe defaults for Apify proof-of-life runs.
+    max_events = _as_int(actor_input.get("max_events"), default=2)
+    scanner_timeout = _as_int(actor_input.get("scanner_timeout_seconds"), default=90)
+    platforms = _as_platforms(actor_input.get("platforms"), default=["twitter"])
+
+    os.environ["SCAN_MAX_EVENTS"] = str(max_events)
+    os.environ["SCANNER_TIMEOUT_SECONDS"] = str(scanner_timeout)
+    os.environ["SCAN_PLATFORMS"] = ",".join(platforms)
 
     logger.info("=" * 50)
     logger.info("Apify Social Listener — one-off scan")
     logger.info("Country: %s", country.upper())
+    logger.info("Max events: %s", max_events)
+    logger.info("Platforms: %s", ", ".join(platforms))
+    logger.info("Per-scanner timeout: %s seconds", scanner_timeout)
     logger.info("=" * 50)
 
     started_at = datetime.now(timezone.utc)
@@ -107,6 +118,8 @@ async def _run_from_input(actor_input: dict[str, Any]) -> dict[str, Any]:
         _post_slack_status(
             "🚀 *Apify Social Listener run started*\n"
             f"*Country:* `{country}`\n"
+            f"*Platforms:* `{', '.join(platforms)}`\n"
+            f"*Max events:* `{max_events}`\n"
             "_Running one-off scan now._"
         )
 
@@ -115,7 +128,6 @@ async def _run_from_input(actor_input: dict[str, Any]) -> dict[str, Any]:
     except Exception as exc:
         error_text = "".join(traceback.format_exception_only(type(exc), exc)).strip()
         logger.exception("Apify Social Listener run failed")
-
         if notify_slack:
             _post_slack_status(
                 "❌ *Apify Social Listener run failed*\n"
@@ -130,24 +142,22 @@ async def _run_from_input(actor_input: dict[str, Any]) -> dict[str, Any]:
     result = {
         "status": "succeeded",
         "country": country,
+        "platforms": platforms,
+        "max_events": max_events,
+        "scanner_timeout_seconds": scanner_timeout,
         "signals_posted_to_slack": posted,
         "started_at": started_at.isoformat(),
         "finished_at": finished_at.isoformat(),
         "duration_seconds": duration_seconds,
-        "reddit_enabled": bool(
-            os.getenv("REDDIT_CLIENT_ID") and os.getenv("REDDIT_CLIENT_SECRET")
-        ),
+        "reddit_enabled": bool(os.getenv("REDDIT_CLIENT_ID") and os.getenv("REDDIT_CLIENT_SECRET")),
     }
 
     if notify_slack:
-        reddit_line = (
-            "Enabled"
-            if result["reddit_enabled"]
-            else "Skipped until Reddit credentials are added"
-        )
+        reddit_line = "Enabled" if result["reddit_enabled"] else "Skipped until Reddit credentials are added"
         _post_slack_status(
             "✅ *Apify Social Listener run completed*\n"
             f"*Country:* `{country}`\n"
+            f"*Platforms:* `{', '.join(platforms)}`\n"
             f"*Signals posted:* `{posted}`\n"
             f"*Reddit:* {reddit_line}\n"
             f"*Duration:* `{duration_seconds}s`"
@@ -158,9 +168,7 @@ async def _run_from_input(actor_input: dict[str, Any]) -> dict[str, Any]:
 
 
 async def main() -> None:
-    """Main entrypoint used by Apify."""
     if Actor is None:
-        # Local fallback, useful if someone runs this without the Apify SDK context.
         country = os.getenv("COUNTRY", "uk")
         await _run_from_input({"country": country, "notify_slack": True})
         return
