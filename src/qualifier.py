@@ -6,6 +6,7 @@ opportunities that are likely to matter for SplitStay.
 
 Main goals:
 - ignore known-past events
+- reject signals that mention an explicitly past event date
 - prioritise HYROX and other large event/community opportunities
 - require accommodation, group-forming, community, cost-pain, brand or competitor intent
 - score signals before Slack
@@ -205,6 +206,26 @@ NOISE_KEYWORDS = [
     "ticket for sale",
 ]
 
+PAST_CONTEXT_KEYWORDS = [
+    "last year",
+    "yesterday",
+    "already happened",
+    "has ended",
+    "ended yesterday",
+    "event recap",
+    "race recap",
+    "throwback",
+    "memories from",
+    "after movie",
+    "aftermovie",
+    "highlights from",
+    "what a weekend",
+    "was amazing",
+    "was incredible",
+    "post event",
+    "post-event",
+]
+
 
 @dataclass(frozen=True)
 class SignalQualification:
@@ -233,6 +254,69 @@ def _contains_any(text: str, keywords: list[str]) -> bool:
 
 def _contains_hyrox(text: str) -> bool:
     return _contains_any(text, HYROX_KEYWORDS)
+
+
+def _normalise_date_text(text: str) -> str:
+    """Normalise ordinal day suffixes so date regexes are easier."""
+    text = text.lower()
+    text = re.sub(r"\b(\d{1,2})(st|nd|rd|th)\b", r"\1", text)
+    return text
+
+
+def signal_mentions_past_date(text: str, today: date | None = None) -> tuple[bool, str | None]:
+    """Detect when a raw signal is about an event/date that has already passed.
+
+    The event config can be broad, for example "HYROX UK 2026-2027 Season".
+    Search results can still contain old posts, for example "October 22-26, 2025".
+    This function blocks those before Slack, even if the configured season is future.
+    """
+    if os.getenv("ENABLE_SIGNAL_DATE_SAFETY", "true").lower() in {"0", "false", "no", "off"}:
+        return False, None
+
+    today = today or _today()
+    cleaned = _normalise_date_text(text)
+
+    if any(term in cleaned for term in PAST_CONTEXT_KEYWORDS):
+        return True, "Signal text contains past-event language."
+
+    # Explicit old years are a strong signal that the post is stale.
+    years = [int(y) for y in re.findall(r"\b(20\d{2})\b", cleaned)]
+    old_years = [y for y in years if y < today.year]
+    if old_years:
+        return True, f"Signal text mentions a past year: {min(old_years)}."
+
+    # Month + optional day/range + year, e.g. "October 22 - 26, 2025".
+    month_names = "|".join(sorted(MONTHS.keys(), key=len, reverse=True))
+    month_year_pattern = re.compile(
+        rf"\b(?P<month>{month_names})\b[^\n\r]{{0,45}}?\b(?P<year>20\d{{2}})\b",
+        re.IGNORECASE,
+    )
+
+    for match in month_year_pattern.finditer(cleaned):
+        month = MONTHS[match.group("month").lower()]
+        year = int(match.group("year"))
+        if year < today.year:
+            return True, f"Signal text mentions a past event date: {match.group(0).strip()}."
+        if year == today.year:
+            last_day = calendar.monthrange(year, month)[1]
+            possible_date = date(year, month, last_day)
+            if possible_date < today:
+                return True, f"Signal text mentions a past event month: {match.group(0).strip()}."
+
+    # Year-month-day formats, e.g. "2025-10-26".
+    iso_pattern = re.compile(r"\b(?P<year>20\d{2})[-/](?P<month>\d{1,2})(?:[-/](?P<day>\d{1,2}))?\b")
+    for match in iso_pattern.finditer(cleaned):
+        year = int(match.group("year"))
+        month = int(match.group("month"))
+        day = int(match.group("day") or calendar.monthrange(year, month)[1])
+        try:
+            found_date = date(year, month, min(day, calendar.monthrange(year, month)[1]))
+        except ValueError:
+            continue
+        if found_date < today:
+            return True, f"Signal text mentions a past date: {match.group(0)}."
+
+    return False, None
 
 
 def event_end_date(event: Event | None) -> date | None:
@@ -337,7 +421,6 @@ def qualify_signal(
         if part
     )
 
-    text_lower = text.lower()
     event_type = (event.type if event else "").lower()
 
     has_hyrox = _contains_hyrox(text) or event_type == "hyrox"
@@ -351,6 +434,24 @@ def qualify_signal(
 
     future = is_future_event(event)
     event_date_label = event.dates if event else None
+
+    # Signal-level date safety: block stale search results even when the broad
+    # configured event/season is future.
+    signal_is_past, signal_past_reason = signal_mentions_past_date(text)
+    vertical_for_rejection = "HYROX" if has_hyrox else (event_type.upper() if event_type else "GENERAL")
+    if signal_is_past:
+        return SignalQualification(
+            should_post=False,
+            score=0,
+            label="Ignored — past date in signal",
+            vertical=vertical_for_rejection,
+            lead_type="past_signal",
+            event_date=event_date_label,
+            future_event=False,
+            tag_darwin=False,
+            reason=signal_past_reason or "Signal text appears to describe a past event.",
+            action="Hold back from Slack and do not action.",
+        )
 
     score = 0
 
