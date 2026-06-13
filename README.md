@@ -14,10 +14,10 @@ Automated social listening tool that monitors accommodation-sharing signals acro
 
 ## Architecture
 
-```
+```text
 ┌─────────────────────────────────────────────────┐
 │                   SCHEDULER                      │
-│  Monthly (15th): Country + Brand + Price scans   │
+│  Monthly: Country + Brand + Price scans          │
 │  Daily: Trustpilot review monitor                │
 └───────────────┬─────────────────────────────────┘
                 │
@@ -42,14 +42,15 @@ Automated social listening tool that monitors accommodation-sharing signals acro
 ## Quick Start
 
 ### Prerequisites
+
 - Python 3.11+
 - Slack workspace with a bot token
-- Reddit API credentials (free)
+- Reddit API credentials
 
 ### 1. Clone & Install
 
 ```bash
-git clone https://github.com/SplitStay/social-listener.git
+git clone https://github.com/corumcainst-code/social-listener.git
 cd social-listener
 pip install -r requirements.txt
 ```
@@ -70,7 +71,7 @@ python -m src.scanner --country spain
 # Run the Trustpilot monitor
 python -m src.trustpilot
 
-# Start the scheduler (runs all scans on schedule)
+# Start the scheduler
 python -m src.scheduler
 ```
 
@@ -81,14 +82,14 @@ python -m src.scheduler
 | Variable | Required | Description |
 |----------|----------|-------------|
 | `SLACK_BOT_TOKEN` | ✅ | Slack bot OAuth token |
-| `SLACK_CHANNEL_ID` | ✅ | Channel to post signals (default: `#social-listening-tool`) |
+| `SLACK_CHANNEL_ID` | ✅ | Slack channel ID, e.g. `C0123456789`. Do not use the visible channel name. |
 | `REDDIT_CLIENT_ID` | ✅ | Reddit API app client ID |
 | `REDDIT_CLIENT_SECRET` | ✅ | Reddit API app client secret |
 | `REDDIT_USER_AGENT` | ✅ | Reddit API user agent string |
-| `TRUSTPILOT_URL` | ❌ | Trustpilot page URL (default: splitstay.travel) |
+| `TRUSTPILOT_URL` | ❌ | Trustpilot page URL |
 | `DARWIN_SLACK_ID` | ❌ | Slack user ID to tag on signals |
-| `SCAN_CRON_DAY` | ❌ | Day of month to scan (default: 15) |
-| `SCAN_CRON_HOUR` | ❌ | Hour (UTC) to start scans (default: 7) |
+| `SCAN_CRON_DAY` | ❌ | Day of month to scan, default `15` |
+| `SCAN_CRON_HOUR` | ❌ | Hour UTC to start scans, default `7` |
 
 ### Country Configs
 
@@ -98,8 +99,8 @@ Each country has a JSON config in `config/`:
 {
   "country": "spain",
   "country_emoji": "🇪🇸",
-  "events": [...],
-  "platforms": [...],
+  "events": [],
+  "platforms": [],
   "date_range": {
     "start": "2026-06-12",
     "end": "2027-06-30"
@@ -109,37 +110,24 @@ Each country has a JSON config in `config/`:
 
 ## Project Structure
 
-```
+```text
 social-listener/
+├── .github/
+│   └── workflows/
+│       └── ci.yml
 ├── src/
 │   ├── __init__.py
-│   ├── scanner.py          # Main scanning engine
+│   ├── scanner.py
 │   ├── platforms/
-│   │   ├── __init__.py
-│   │   ├── reddit.py       # Reddit API scanner
-│   │   ├── twitter.py      # X/Twitter scanner
-│   │   ├── facebook.py     # Facebook group scanner
-│   │   ├── web_search.py   # General web search fallback
-│   │   └── trustpilot.py   # Trustpilot review scraper
-│   ├── processor.py        # Signal classification & dedup
-│   ├── slack_bot.py        # Slack message formatting & posting
-│   ├── scheduler.py        # APScheduler cron management
-│   ├── brand_monitor.py    # Brand & competitor monitoring
-│   ├── price_monitor.py    # Accommodation price spike alerts
-│   └── models.py           # Data models
+│   ├── processor.py
+│   ├── slack_bot.py
+│   ├── scheduler.py
+│   ├── brand_monitor.py
+│   ├── price_monitor.py
+│   └── models.py
 ├── config/
-│   ├── spain.json
-│   ├── uk.json
-│   ├── us.json
-│   ├── brazil.json
-│   ├── germany.json
-│   ├── taiwan.json
-│   ├── china.json
-│   └── portugal.json
 ├── data/
-│   └── state/              # Scan state files (auto-created)
-├── tests/
-│   └── test_scanner.py
+│   └── state/
 ├── requirements.txt
 ├── .env.example
 ├── Dockerfile
@@ -149,7 +137,7 @@ social-listener/
 
 ## Deployment
 
-### Docker (recommended)
+### Docker
 
 ```bash
 docker-compose up -d
@@ -157,19 +145,29 @@ docker-compose up -d
 
 ### Railway / Render
 
-1. Push to GitHub
-2. Connect repo to Railway/Render
-3. Set environment variables
-4. Deploy — scheduler starts automatically
+1. Push to GitHub.
+2. Connect the repo to Railway or Render.
+3. Set environment variables in the hosting platform.
+4. Deploy using the scheduler command:
+
+```bash
+python -m src.scheduler
+```
 
 ## Schedule
 
 | Scan | Schedule | Description |
 |------|----------|-------------|
-| Country scans (×8) | 15th monthly, 7:00–8:10 UTC | All 8 countries staggered |
-| Brand & Competitor | 15th monthly, 8:20 UTC | SplitStay mentions + competitors |
-| Price Spikes | 15th monthly, 8:30 UTC | Accommodation price alerts |
-| Trustpilot | Daily, 8:00 UTC | New review monitor |
+| Country scans ×8 | 15th monthly, 07:00–08:10 UTC by default | All 8 countries staggered |
+| Brand & Competitor | 15th monthly, 08:20 UTC by default | SplitStay mentions + competitors |
+| Price Spikes | 15th monthly, 08:30 UTC by default | Accommodation price alerts |
+| Trustpilot | Daily, 08:00 UTC | New review monitor |
+
+## Reliability notes
+
+- The scheduler uses one asyncio event loop so scheduled jobs stay attached to the loop that is kept alive.
+- New signal URLs are only marked as known after Slack confirms all signals in the batch were posted.
+- If Slack credentials are missing or posting fails, state is not updated, so leads can be retried.
 
 ## License
 
