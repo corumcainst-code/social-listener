@@ -1,0 +1,170 @@
+{
+  "spain": [
+    {
+      "name": "HYROX Spain 2026-2027 Season",
+      "location": "Madrid / Barcelona / Valencia / Bilbao",
+      "dates": "July 2026 - June 2027",
+      "type": "hyrox",
+      "keywords": [
+        "hyrox spain",
+        "hyrox españa",
+        "hyrox madrid",
+        "hyrox barcelona",
+        "hyrox valencia",
+        "hyrox bilbao",
+        "hyrox accommodation",
+        "hyrox hotel",
+        "hyrox airbnb",
+        "hyrox room share",
+        "hyrox whatsapp"
+      ]
+    }
+  ],
+  "uk": [
+    {
+      "name": "HYROX UK 2026-2027 Season",
+      "location": "London / Manchester / Birmingham / Glasgow",
+      "dates": "July 2026 - June 2027",
+      "type": "hyrox",
+      "keywords": [
+        "hyrox uk",
+        "hyrox london",
+        "hyrox manchester",
+        "hyrox birmingham",
+        "hyrox glasgow",
+        "hyrox accommodation",
+        "hyrox hotel",
+        "hyrox airbnb",
+        "hyrox room share",
+        "hyrox whatsapp",
+        "hyrox athlete accommodation",
+        "hyrox group chat"
+      ]
+    }
+  ],
+  "us": [
+    {
+      "name": "HYROX US 2026-2027 Season",
+      "location": "New York / Chicago / Miami / Houston / Dallas / Washington DC",
+      "dates": "July 2026 - June 2027",
+      "type": "hyrox",
+      "keywords": [
+        "hyrox usa",
+        "hyrox us",
+        "hyrox new york",
+        "hyrox chicago",
+        "hyrox miami",
+        "hyrox houston",
+        "hyrox dallas",
+        "hyrox washington",
+        "hyrox accommodation",
+        "hyrox hotel",
+        "hyrox airbnb",
+        "hyrox room share",
+        "hyrox travel group"
+      ]
+    }
+  ],
+  "brazil": [
+    {
+      "name": "HYROX Brazil 2026-2027 Season",
+      "location": "São Paulo / Rio de Janeiro",
+      "dates": "July 2026 - June 2027",
+      "type": "hyrox",
+      "keywords": [
+        "hyrox brazil",
+        "hyrox brasil",
+        "hyrox sao paulo",
+        "hyrox são paulo",
+        "hyrox rio",
+        "hyrox accommodation",
+        "hyrox hotel",
+        "hyrox airbnb",
+        "hyrox room share",
+        "hyrox whatsapp"
+      ]
+    }
+  ],
+  "germany": [
+    {
+      "name": "HYROX Germany 2026-2027 Season",
+      "location": "Hamburg / Berlin / Munich / Frankfurt / Cologne",
+      "dates": "July 2026 - June 2027",
+      "type": "hyrox",
+      "keywords": [
+        "hyrox germany",
+        "hyrox deutschland",
+        "hyrox hamburg",
+        "hyrox berlin",
+        "hyrox munich",
+        "hyrox münchen",
+        "hyrox frankfurt",
+        "hyrox cologne",
+        "hyrox köln",
+        "hyrox accommodation",
+        "hyrox hotel",
+        "hyrox airbnb",
+        "hyrox room share"
+      ]
+    }
+  ],
+  "taiwan": [
+    {
+      "name": "HYROX Taiwan 2026-2027 Season",
+      "location": "Taipei",
+      "dates": "July 2026 - June 2027",
+      "type": "hyrox",
+      "keywords": [
+        "hyrox taiwan",
+        "hyrox taipei",
+        "hyrox 台灣",
+        "hyrox 台北",
+        "hyrox accommodation",
+        "hyrox hotel",
+        "hyrox airbnb",
+        "hyrox room share",
+        "hyrox line group"
+      ]
+    }
+  ],
+  "china": [
+    {
+      "name": "HYROX China 2026-2027 Season",
+      "location": "Shanghai / Beijing / Hong Kong",
+      "dates": "July 2026 - June 2027",
+      "type": "hyrox",
+      "keywords": [
+        "hyrox china",
+        "hyrox shanghai",
+        "hyrox beijing",
+        "hyrox hong kong",
+        "hyrox 上海",
+        "hyrox 北京",
+        "hyrox 香港",
+        "hyrox accommodation",
+        "hyrox hotel",
+        "hyrox airbnb",
+        "hyrox room share"
+      ]
+    }
+  ],
+  "portugal": [
+    {
+      "name": "HYROX Portugal 2026-2027 Season",
+      "location": "Lisbon / Porto",
+      "dates": "July 2026 - June 2027",
+      "type": "hyrox",
+      "keywords": [
+        "hyrox portugal",
+        "hyrox lisboa",
+        "hyrox lisbon",
+        "hyrox porto",
+        "hyrox accommodation",
+        "hyrox hotel",
+        "hyrox airbnb",
+        "hyrox room share",
+        "hyrox whatsapp"
+      ]
+    }
+  ]
+}
