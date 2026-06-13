@@ -17,7 +17,7 @@ from pathlib import Path
 
 from dotenv import load_dotenv
 
-from src.models import CountryConfig, ScanState, Event
+from src.models import CountryConfig, ScanState
 from src.platforms.base import Scanner
 from src.platforms.reddit import RedditScanner
 from src.platforms.twitter import TwitterScanner
@@ -101,9 +101,9 @@ def build_scanners(config: CountryConfig) -> list[Scanner]:
 
 async def scan_country(country: str) -> int:
     """Run a full scan for one country. Returns number of new signals posted."""
-    logger.info(f"{'=' * 40}")
-    logger.info(f"Starting scan: {country.upper()}")
-    logger.info(f"{'=' * 40}")
+    logger.info("%s", "=" * 40)
+    logger.info("Starting scan: %s", country.upper())
+    logger.info("%s", "=" * 40)
 
     config = load_config(country)
     state = load_state(country)
@@ -112,20 +112,19 @@ async def scan_country(country: str) -> int:
     # Uniform loop — every scanner has the same interface
     all_signals = []
     for scanner in scanners:
-        logger.info(f"Scanning {scanner.name}...")
+        logger.info("Scanning %s...", scanner.name)
         try:
             signals = await scanner.scan(config.events, config.country)
             all_signals.extend(signals)
-            logger.info(f"  {scanner.name}: {len(signals)} signals")
+            logger.info("  %s: %s signals", scanner.name, len(signals))
         except Exception as e:
-            logger.error(f"  {scanner.name} failed: {e}")
+            logger.error("  %s failed: %s", scanner.name, e)
 
     # Process & deduplicate
     processor = SignalProcessor(state, max_age_days=60)
     new_signals = processor.process(all_signals)
-    processor.trim_state()
 
-    logger.info(f"Total: {len(all_signals)} raw → {len(new_signals)} new signals")
+    logger.info("Total: %s raw → %s new signals", len(all_signals), len(new_signals))
 
     # Post to Slack
     posted = 0
@@ -139,18 +138,29 @@ async def scan_country(country: str) -> int:
             posted = poster.post_signals_batch(
                 new_signals, config.country, config.country_emoji
             )
-            logger.info(f"Posted {posted} signals to Slack")
+            logger.info("Posted %s of %s signals to Slack", posted, len(new_signals))
+
+            if posted == len(new_signals):
+                processor.mark_posted(new_signals)
+                processor.trim_state()
+                logger.info("Marked %s signals as known", len(new_signals))
+            else:
+                logger.warning(
+                    "Slack did not confirm every signal was posted. "
+                    "State was not updated, so unconfirmed signals can be retried."
+                )
         else:
             logger.warning("Slack credentials not set — signals not posted")
+            logger.warning("State was not updated, so these signals can be retried.")
             for s in new_signals:
-                logger.info(f"  [{s.signal_type.value}] {s.title[:60]} — {s.url}")
+                logger.info("  [%s] %s — %s", s.signal_type.value, s.title[:60], s.url)
 
-    # Save state
+    # Save scan metadata and any successfully posted state.
     state.last_scan = datetime.now(timezone.utc).isoformat()
     state.scan_count += 1
     save_state(country, state)
 
-    logger.info(f"Scan complete: {country.upper()} — {posted} signals posted")
+    logger.info("Scan complete: %s — %s signals posted", country.upper(), posted)
     return posted
 
 
