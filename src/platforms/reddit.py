@@ -8,42 +8,11 @@ from datetime import datetime, timedelta, timezone
 
 import praw
 
-from src.models import Signal, SignalType, Platform, Event
+from src.classifier import classify
+from src.models import Signal, Platform, Event
 from src.platforms.base import Scanner
 
 logger = logging.getLogger(__name__)
-
-# Keywords that indicate someone is looking to share accommodation
-SEEKING_KEYWORDS = [
-    "looking for roommate", "share accommodation", "share a room",
-    "split hotel", "split airbnb", "split the cost", "share stay",
-    "looking for someone to share", "anyone want to share",
-    "need a roommate", "room share", "hostel mate",
-    "share an apartment", "share housing", "split rent",
-    "anyone sharing", "who wants to share", "looking to share",
-    "share a place", "share accom", "splitting costs",
-]
-
-OFFERING_KEYWORDS = [
-    "have a spare bed", "extra space", "room available",
-    "spare room", "looking for someone to fill", "empty bed",
-    "have space in", "bed available", "have room for",
-    "offering a spot", "space in my airbnb",
-]
-
-COST_PAIN_KEYWORDS = [
-    "so expensive", "prices are insane", "can't afford",
-    "accommodation prices", "hotel prices crazy", "airbnb too expensive",
-    "ridiculous prices", "price gouging", "way too much",
-    "sold out everywhere", "no affordable", "robbery",
-]
-
-GROUP_FORMING_KEYWORDS = [
-    "group chat", "whatsapp group", "discord server",
-    "group of us", "anyone else going", "meet up",
-    "looking for a group", "forming a group", "travel group",
-    "carpool and share", "festival group", "camp together",
-]
 
 
 class RedditScanner(Scanner):
@@ -175,24 +144,15 @@ class RedditScanner(Scanner):
 
         return signals
 
+    @staticmethod
     def _classify_submission(
-        self,
         submission,
         event: Event | None,
         country: str,
         created: datetime,
     ) -> Signal | None:
-        text = f"{submission.title} {submission.selftext}".lower()
-
-        signal_type = None
-        if any(kw in text for kw in SEEKING_KEYWORDS):
-            signal_type = SignalType.SEEKING
-        elif any(kw in text for kw in OFFERING_KEYWORDS):
-            signal_type = SignalType.OFFERING
-        elif any(kw in text for kw in COST_PAIN_KEYWORDS):
-            signal_type = SignalType.COST_PAIN
-        elif any(kw in text for kw in GROUP_FORMING_KEYWORDS):
-            signal_type = SignalType.GROUP_FORMING
+        text = f"{submission.title} {submission.selftext}"
+        signal_type = classify(text, platform="reddit")
 
         if not signal_type:
             return None

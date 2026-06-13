@@ -2,7 +2,8 @@
 
 ADR: Twitter classification intentionally uses only SEEKING and COST_PAIN
 categories.  Tweets are too short for reliable OFFERING or GROUP_FORMING
-detection, so we keep the set narrow to avoid false positives.
+detection, so we keep the set narrow to avoid false positives.  This is
+enforced in ``src/classifier.py`` via the ``platform="twitter"`` argument.
 """
 
 from __future__ import annotations
@@ -13,7 +14,8 @@ from datetime import datetime, timedelta, timezone
 import httpx
 from bs4 import BeautifulSoup
 
-from src.models import Signal, SignalType, Platform, Event
+from src.classifier import classify
+from src.models import Signal, Platform, Event
 from src.platforms.base import Scanner
 
 logger = logging.getLogger(__name__)
@@ -116,13 +118,9 @@ class TwitterScanner(Scanner):
             permalink = link_el["href"] if link_el else ""
             url = f"https://x.com{permalink}" if permalink else ""
 
-            # ADR: intentionally narrow — SEEKING + COST_PAIN only for tweets
-            text_lower = content.lower()
-            if any(kw in text_lower for kw in ["share", "split", "roommate", "looking for"]):
-                signal_type = SignalType.SEEKING
-            elif any(kw in text_lower for kw in ["expensive", "insane", "afford", "crazy"]):
-                signal_type = SignalType.COST_PAIN
-            else:
+            # ADR: platform="twitter" → classifier checks SEEKING + COST_PAIN only
+            signal_type = classify(content, platform="twitter")
+            if not signal_type:
                 return None
 
             return Signal(

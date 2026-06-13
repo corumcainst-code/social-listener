@@ -20,7 +20,8 @@ from urllib.parse import parse_qs, unquote, urlparse
 import httpx
 from bs4 import BeautifulSoup
 
-from src.models import Signal, SignalType, Platform, Event
+from src.classifier import classify
+from src.models import Signal, Platform, Event
 from src.platforms.base import Scanner
 
 logger = logging.getLogger(__name__)
@@ -41,12 +42,6 @@ _PLATFORM_ENUM: dict[str, Platform] = {
     "tiktok": Platform.TIKTOK,
     "telegram": Platform.TELEGRAM,
 }
-
-# Classification keywords (shared by all web-search platforms)
-_SEEKING = ["looking for", "share", "split", "roommate", "anyone want"]
-_OFFERING = ["spare room", "extra space", "bed available", "room for"]
-_COST_PAIN = ["expensive", "afford", "insane", "ridiculous", "prices"]
-_GROUP = ["group", "meet up", "camp together", "travel together"]
 
 
 class WebSearchScanner(Scanner):
@@ -139,17 +134,8 @@ class WebSearchScanner(Scanner):
         event: Event,
         country: str,
     ) -> Signal | None:
-        text = f"{result['title']} {result['snippet']}".lower()
-
-        signal_type = None
-        if any(kw in text for kw in _SEEKING):
-            signal_type = SignalType.SEEKING
-        elif any(kw in text for kw in _OFFERING):
-            signal_type = SignalType.OFFERING
-        elif any(kw in text for kw in _COST_PAIN):
-            signal_type = SignalType.COST_PAIN
-        elif any(kw in text for kw in _GROUP):
-            signal_type = SignalType.GROUP_FORMING
+        text = f"{result['title']} {result['snippet']}"
+        signal_type = classify(text, platform=self._platform_name)
 
         if not signal_type:
             return None
