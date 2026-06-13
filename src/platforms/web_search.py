@@ -10,18 +10,24 @@ Instantiate one per platform:
 
 Each instance scopes searches to the correct site and maps results to the
 right ``Platform`` enum.
+
+The query builder intentionally avoids over-specific exact-match searches such
+as "HYROX UK 2026-2027 Season" because those usually return no results. For
+priority verticals like HYROX, it searches city/intent keywords instead, such as
+"HYROX London" + accommodation, hotel, room share, WhatsApp, and group chat.
 """
 
 from __future__ import annotations
 
 import logging
-from urllib.parse import parse_qs, unquote, urlparse
+import os
+from urllib.parse import parse_qs, quote_plus, unquote, urlparse
 
 import httpx
 from bs4 import BeautifulSoup
 
 from src.classifier import classify
-from src.models import Signal, Platform, Event
+from src.models import Event, Platform, Signal, SignalType
 from src.platforms.base import Scanner
 
 logger = logging.getLogger(__name__)
@@ -42,6 +48,36 @@ _PLATFORM_ENUM: dict[str, Platform] = {
     "tiktok": Platform.TIKTOK,
     "telegram": Platform.TELEGRAM,
 }
+
+_ACCOMMODATION_TERMS = [
+    "accommodation",
+    "hotel",
+    "airbnb",
+    "room share",
+    "roommate",
+    "place to stay",
+]
+
+_COMMUNITY_TERMS = [
+    "whatsapp",
+    "group chat",
+    "discord",
+    "telegram",
+    "facebook group",
+    "athlete group",
+]
+
+
+def _int_env(name: str, default: int) -> int:
+    raw = os.getenv(name)
+    if raw in (None, ""):
+        return default
+    try:
+        value = int(str(raw).strip())
+        return value if value > 0 else default
+    except ValueError:
+        logger.warning("Invalid %s=%r — using default %s", name, raw, default)
+        return default
 
 
 class WebSearchScanner(Scanner):
@@ -74,10 +110,9 @@ class WebSearchScanner(Scanner):
             headers={"User-Agent": "SplitStay Social Listener v1.0"},
         ) as client:
             for event in events:
-                queries = [
-                    f'{self._site_prefix} "{event.name}" share accommodation',
-                    f'{self._site_prefix} "{event.location}" share hotel roommate',
-                ]
+                queries = self._queries_for_event(event)
+                logger.info("  %s: %s search queries for %s", self.name, len(queries), event.name)
+
                 for query in queries:
                     try:
                         results = await self._search(client, query)
@@ -91,6 +126,79 @@ class WebSearchScanner(Scanner):
         return self._deduplicate(signals)
 
     # ------------------------------------------------------------------
+    # Query building
+    # ------------------------------------------------------------------
+
+    def _queries_for_event(self, event: Event) -> list[str]:
+        """Build search queries that are specific enough to be useful.
+
+        HYROX needs different handling from normal event search. Exact quoted
+        season names are too narrow, so we prioritise event.keywords and pair
+        them with accommodation/community terms.
+        """
+        max_queries = _int_env("WEB_SEARCH_MAX_QUERIES_PER_EVENT", 8)
+        event_type = (event.type or "").lower()
+        keywords = [kw.strip() for kw in event.keywords if kw and kw.strip()]
+
+        queries: list[str] = []
+
+        if event_type == "hyrox":
+            # Prefer city/country HYROX keywords first, then intent keywords.
+            city_keywords = [
+                kw for kw in keywords
+                if "hyrox" in kw.lower()
+                and not any(term in kw.lower() for term in _ACCOMMODATION_TERMS + _COMMUNITY_TERMS)
+            ]
+            intent_keywords = [
+                kw for kw in keywords
+                if any(term in kw.lower() for term in _ACCOMMODATION_TERMS + _COMMUNITY_TERMS)
+            ]
+
+            for kw in city_keywords[:4]:
+                queries.append(f'{self._site_prefix} "{kw}" accommodation hotel airbnb')
+                queries.append(f'{self._site_prefix} "{kw}" "room share" roommate "group chat" whatsapp')
+
+            for kw in intent_keywords[:4]:
+                queries.append(f'{self._site_prefix} "{kw}"')
+
+            # Fallbacks if the config only has a broad HYROX event name.
+            if not queries:
+                queries.extend([
+                    f'{self._site_prefix} hyrox accommodation hotel airbnb',
+                    f'{self._site_prefix} hyrox "room share" whatsapp "group chat"',
+                ])
+
+            return self._unique(queries)[:max_queries]
+
+        # Standard event search for festivals/conferences/other events.
+        if event.name:
+            queries.append(f'{self._site_prefix} "{event.name}" share accommodation')
+            queries.append(f'{self._site_prefix} "{event.name}" hotel airbnb room share')
+
+        for kw in keywords[:4]:
+            queries.append(f'{self._site_prefix} "{kw}" accommodation hotel airbnb')
+            queries.append(f'{self._site_prefix} "{kw}" "room share" "group chat"')
+
+        if event.location:
+            # Do not quote full multi-city strings like "London / Manchester".
+            for part in event.location.replace("/", ",").split(",")[:3]:
+                location = part.strip()
+                if location:
+                    queries.append(f'{self._site_prefix} "{location}" "{event.name}" hotel room')
+
+        return self._unique(queries)[:max_queries]
+
+    @staticmethod
+    def _unique(items: list[str]) -> list[str]:
+        seen: set[str] = set()
+        unique: list[str] = []
+        for item in items:
+            if item not in seen:
+                seen.add(item)
+                unique.append(item)
+        return unique
+
+    # ------------------------------------------------------------------
     # Private helpers
     # ------------------------------------------------------------------
 
@@ -99,7 +207,7 @@ class WebSearchScanner(Scanner):
         """Run a DuckDuckGo HTML search; returns [{title, url, snippet}]."""
         results: list[dict] = []
         try:
-            encoded = query.replace(" ", "+")
+            encoded = quote_plus(query)
             url = f"https://html.duckduckgo.com/html/?q={encoded}"
             response = await client.get(url)
             if response.status_code != 200:
@@ -136,6 +244,18 @@ class WebSearchScanner(Scanner):
     ) -> Signal | None:
         text = f"{result['title']} {result['snippet']}"
         signal_type = classify(text, platform=self._platform_name)
+
+        # HYROX fallback: if search found a HYROX result with accommodation or
+        # community wording, keep it as a lead/community signal for the quality
+        # layer to score. This avoids losing useful results where the central
+        # classifier misses a short social-search snippet.
+        if not signal_type and (event.type or "").lower() == "hyrox":
+            text_lower = text.lower()
+            if "hyrox" in text_lower:
+                if any(term in text_lower for term in _ACCOMMODATION_TERMS):
+                    signal_type = SignalType.SEEKING
+                elif any(term in text_lower for term in _COMMUNITY_TERMS):
+                    signal_type = SignalType.GROUP_FORMING
 
         if not signal_type:
             return None
