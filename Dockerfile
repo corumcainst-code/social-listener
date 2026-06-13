@@ -20,5 +20,7 @@ COPY . .
 # Create data directory
 RUN mkdir -p data/state
 
-# Run scheduler by default
-CMD ["python", "-m", "src.scheduler"]
+# Smart entrypoint:
+# - On Apify: run one immediate scan and finish
+# - Elsewhere: run the long-lived scheduler
+CMD ["python", "-m", "src.entrypoint"]

@@ -6,3 +6,4 @@ httpx>=0.27.0         # Async HTTP client
 beautifulsoup4>=4.12  # HTML parsing
 python-dotenv>=1.0.0  # Environment variables
 pydantic>=2.7.0       # Data models
+apify>=1.7.0          # Apify Actor SDK
