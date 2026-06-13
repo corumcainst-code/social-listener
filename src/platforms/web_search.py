@@ -11,10 +11,13 @@ Instantiate one per platform:
 Each instance scopes searches to the correct site and maps results to the
 right ``Platform`` enum.
 
-The query builder intentionally avoids over-specific exact-match searches such
-as "HYROX UK 2026-2027 Season" because those usually return no results. For
-priority verticals like HYROX, it searches city/intent keywords instead, such as
-"HYROX London" + accommodation, hotel, room share, WhatsApp, and group chat.
+This scanner is deliberately limited to public/searchable web results. It does
+not log in to Facebook, Instagram, TikTok, Discord, or Telegram, and it cannot
+read private groups, locked profiles, or hidden comment threads.
+
+For priority verticals like HYROX, it searches city/event keywords with stronger
+intent phrases such as hotel share, room share, accommodation, group chat,
+"where is everyone staying", "anyone going", and event/group/comment surfaces.
 """
 
 from __future__ import annotations
@@ -51,11 +54,33 @@ _PLATFORM_ENUM: dict[str, Platform] = {
 
 _ACCOMMODATION_TERMS = [
     "accommodation",
+    "accomodation",
     "hotel",
     "airbnb",
+    "hostel",
     "room share",
     "roommate",
+    "room mate",
+    "share room",
+    "share a room",
+    "share accommodation",
+    "share accom",
+    "share hotel",
+    "split hotel",
+    "split airbnb",
+    "split the cost",
     "place to stay",
+    "somewhere to stay",
+    "stay near",
+    "stay in",
+    "spare bed",
+    "apartment",
+    "flat",
+    "house",
+    "couch",
+    "sofa",
+    "near the venue",
+    "near venue",
 ]
 
 _COMMUNITY_TERMS = [
@@ -65,7 +90,84 @@ _COMMUNITY_TERMS = [
     "telegram",
     "facebook group",
     "athlete group",
+    "race group",
+    "travel group",
+    "community",
+    "join the group",
+    "group link",
 ]
+
+_DISCUSSION_TERMS = [
+    "comment",
+    "comments",
+    "comment section",
+    "thread",
+    "discussion",
+    "anyone going",
+    "who is going",
+    "where is everyone staying",
+    "where are people staying",
+    "where are you staying",
+    "anyone staying",
+    "anyone need a room",
+    "anyone have a room",
+    "who needs a room",
+    "hotel share",
+    "room share",
+    "roommate",
+    "room mate",
+    "travel together",
+    "split costs",
+]
+
+_COST_PAIN_TERMS = [
+    "too expensive",
+    "so expensive",
+    "hotel prices",
+    "accommodation prices",
+    "airbnb prices",
+    "sold out",
+    "sold out everywhere",
+    "no affordable",
+    "cheap hotel",
+    "budget hotel",
+]
+
+# Stronger search patterns by platform. These improve discovery of public event,
+# group, caption and comment-like surfaces without pretending to access private
+# comments.
+_PLATFORM_INTENT_QUERIES: dict[str, list[str]] = {
+    "facebook": [
+        '"{kw}" "where is everyone staying"',
+        '"{kw}" "room share" OR "hotel share"',
+        '"{kw}" "facebook group" accommodation',
+        '"{kw}" "event" accommodation hotel',
+    ],
+    "instagram": [
+        '"{kw}" accommodation hotel airbnb',
+        '"{kw}" "room share" OR roommate',
+        '"{kw}" "anyone going" hotel',
+        '"{kw}" "where is everyone staying"',
+    ],
+    "tiktok": [
+        '"{kw}" accommodation hotel airbnb',
+        '"{kw}" "room share" OR roommate',
+        '"{kw}" "comments" accommodation',
+        '"{kw}" "anyone going" hotel',
+    ],
+    "telegram": [
+        '"{kw}" "group chat" accommodation',
+        '"{kw}" "room share" telegram',
+        '"{kw}" "hotel share"',
+        '"{kw}" "anyone going"',
+    ],
+    "discord": [
+        '"{kw}" discord accommodation',
+        '"{kw}" "group chat" "room share"',
+        '"{kw}" "hotel share"',
+        '"{kw}" "anyone going"',
+    ],
+}
 
 
 def _int_env(name: str, default: int) -> int:
@@ -132,9 +234,10 @@ class WebSearchScanner(Scanner):
     def _queries_for_event(self, event: Event) -> list[str]:
         """Build search queries that are specific enough to be useful.
 
-        HYROX needs different handling from normal event search. Exact quoted
-        season names are too narrow, so we prioritise event.keywords and pair
-        them with accommodation/community terms.
+        HYROX and other event-led scans need more than generic accommodation
+        searches. We search for public event pages, group pages, captions and
+        comment-like snippets where people are asking where to stay, looking for
+        rooms, or forming travel/accommodation groups.
         """
         max_queries = _int_env("WEB_SEARCH_MAX_QUERIES_PER_EVENT", 8)
         event_type = (event.type or "").lower()
@@ -154,11 +257,11 @@ class WebSearchScanner(Scanner):
                 if any(term in kw.lower() for term in _ACCOMMODATION_TERMS + _COMMUNITY_TERMS)
             ]
 
-            for kw in city_keywords[:4]:
-                queries.append(f'{self._site_prefix} "{kw}" accommodation hotel airbnb')
-                queries.append(f'{self._site_prefix} "{kw}" "room share" roommate "group chat" whatsapp')
+            # Keep this tight so all platforms finish quickly on Apify.
+            for kw in city_keywords[:2]:
+                queries.extend(self._platform_queries_for_keyword(kw))
 
-            for kw in intent_keywords[:4]:
+            for kw in intent_keywords[:2]:
                 queries.append(f'{self._site_prefix} "{kw}"')
 
             # Fallbacks if the config only has a broad HYROX event name.
@@ -166,18 +269,18 @@ class WebSearchScanner(Scanner):
                 queries.extend([
                     f'{self._site_prefix} hyrox accommodation hotel airbnb',
                     f'{self._site_prefix} hyrox "room share" whatsapp "group chat"',
+                    f'{self._site_prefix} hyrox "where is everyone staying"',
+                    f'{self._site_prefix} hyrox "anyone going" hotel',
                 ])
 
             return self._unique(queries)[:max_queries]
 
         # Standard event search for festivals/conferences/other events.
         if event.name:
-            queries.append(f'{self._site_prefix} "{event.name}" share accommodation')
-            queries.append(f'{self._site_prefix} "{event.name}" hotel airbnb room share')
+            queries.extend(self._platform_queries_for_keyword(event.name))
 
-        for kw in keywords[:4]:
-            queries.append(f'{self._site_prefix} "{kw}" accommodation hotel airbnb')
-            queries.append(f'{self._site_prefix} "{kw}" "room share" "group chat"')
+        for kw in keywords[:3]:
+            queries.extend(self._platform_queries_for_keyword(kw))
 
         if event.location:
             # Do not quote full multi-city strings like "London / Manchester".
@@ -185,8 +288,22 @@ class WebSearchScanner(Scanner):
                 location = part.strip()
                 if location:
                     queries.append(f'{self._site_prefix} "{location}" "{event.name}" hotel room')
+                    queries.append(f'{self._site_prefix} "{location}" "{event.name}" "where is everyone staying"')
 
         return self._unique(queries)[:max_queries]
+
+    def _platform_queries_for_keyword(self, keyword: str) -> list[str]:
+        """Return platform-specific search patterns for one event keyword."""
+        templates = _PLATFORM_INTENT_QUERIES.get(self._platform_name)
+        if not templates:
+            templates = [
+                '"{kw}" accommodation hotel airbnb',
+                '"{kw}" "room share" "group chat"',
+                '"{kw}" "where is everyone staying"',
+                '"{kw}" "anyone going"',
+            ]
+
+        return [f"{self._site_prefix} " + template.format(kw=keyword) for template in templates]
 
     @staticmethod
     def _unique(items: list[str]) -> list[str]:
@@ -243,22 +360,33 @@ class WebSearchScanner(Scanner):
         country: str,
     ) -> Signal | None:
         text = f"{result['title']} {result['snippet']}"
+        text_lower = text.lower()
         signal_type = classify(text, platform=self._platform_name)
 
-        # HYROX fallback: if search found a HYROX result with accommodation or
-        # community wording, keep it as a lead/community signal for the quality
-        # layer to score. This avoids losing useful results where the central
-        # classifier misses a short social-search snippet.
-        if not signal_type and (event.type or "").lower() == "hyrox":
-            text_lower = text.lower()
-            if "hyrox" in text_lower:
-                if any(term in text_lower for term in _ACCOMMODATION_TERMS):
-                    signal_type = SignalType.SEEKING
-                elif any(term in text_lower for term in _COMMUNITY_TERMS):
-                    signal_type = SignalType.GROUP_FORMING
+        has_hyrox = "hyrox" in text_lower or (event.type or "").lower() == "hyrox"
+        has_accommodation = any(term in text_lower for term in _ACCOMMODATION_TERMS)
+        has_community = any(term in text_lower for term in _COMMUNITY_TERMS)
+        has_discussion = any(term in text_lower for term in _DISCUSSION_TERMS)
+        has_cost_pain = any(term in text_lower for term in _COST_PAIN_TERMS)
+
+        # HYROX/event fallback: if search found a relevant result with
+        # accommodation, community, cost-pain or discussion wording, keep it for
+        # the quality layer to score. This avoids losing useful short snippets.
+        if not signal_type and has_hyrox:
+            if has_accommodation or has_discussion:
+                signal_type = SignalType.SEEKING
+            elif has_community:
+                signal_type = SignalType.GROUP_FORMING
+            elif has_cost_pain:
+                signal_type = SignalType.COST_PAIN
 
         if not signal_type:
             return None
+
+        source_context = self._source_context(result, text)
+        snippet = result["snippet"][:300]
+        if source_context:
+            snippet = f"Source context: {source_context}\n{snippet}"
 
         return Signal(
             id=f"{self._platform_name}_{hash(result['url']) & 0xFFFFFFFF:08x}",
@@ -267,9 +395,35 @@ class WebSearchScanner(Scanner):
             country=country,
             event=event.name,
             title=result["title"][:120],
-            content=result["snippet"][:300],
+            content=snippet[:500],
             url=result["url"],
         )
+
+    def _source_context(self, result: dict, text: str) -> str:
+        """Best-effort label for what kind of public surface was found."""
+        url = (result.get("url") or "").lower()
+        combined = f"{url} {text}".lower()
+
+        if "facebook.com/events" in combined or "event page" in combined:
+            return "Facebook event page"
+        if "facebook.com/groups" in combined or "facebook group" in combined:
+            return "Facebook group"
+        if "discord.gg" in combined or "discord.com/invite" in combined:
+            return "Discord invite/community"
+        if "t.me/" in combined or "telegram" in combined:
+            return "Telegram public group/channel"
+        if "tiktok.com" in combined:
+            if "comment" in combined or "comments" in combined:
+                return "TikTok comment/caption signal"
+            return "TikTok public post"
+        if "instagram.com" in combined:
+            if "comment" in combined or "comments" in combined:
+                return "Instagram comment/caption signal"
+            return "Instagram public post"
+        if "thread" in combined or "discussion" in combined or "comments" in combined:
+            return "Public thread/discussion"
+
+        return f"{self.name} public/searchable result"
 
     @staticmethod
     def _deduplicate(signals: list[Signal]) -> list[Signal]:
