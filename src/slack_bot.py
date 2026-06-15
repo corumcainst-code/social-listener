@@ -8,6 +8,12 @@ from datetime import datetime, timezone
 from slack_sdk import WebClient
 from slack_sdk.errors import SlackApiError
 
+from src.intelligence import (
+    build_lead_id,
+    build_lead_tags,
+    feedback_instruction,
+    source_context_label,
+)
 from src.models import Event, Signal, SignalType, TrustpilotReview
 from src.qualifier import SignalQualification, build_event_lookup, qualify_signal
 
@@ -55,6 +61,12 @@ class SlackPoster:
             {"emoji": "📡", "label": signal.signal_type.value},
         )
 
+        # Lead intelligence fields for the human feedback loop.
+        lead_id = build_lead_id(signal, qualification, event=event, country=signal.country)
+        lead_tags = build_lead_tags(signal, qualification, event=event)
+        lead_tags_line = ", ".join(lead_tags)
+        source_context = source_context_label(signal)
+
         # Darwin should only be tagged on qualified high-priority action items.
         tag = ""
         if qualification.tag_darwin and self.darwin_slack_id:
@@ -80,13 +92,16 @@ class SlackPoster:
         text = (
             f"{display['emoji']} *{qualification.label}* {country_emoji}{tag}\n"
             f"━━━━━━━━━━━━━━━━━━━━━━\n"
+            f"*Lead ID:* `{lead_id}`\n"
             f"{event_line}"
             f"{event_date_line}"
             f"{future_line}"
             f"*Platform:* {signal.platform.value.title()}\n"
+            f"*Source context:* {source_context}\n"
             f"*Signal type:* {display['label']}\n"
             f"*Priority vertical:* {qualification.vertical}\n"
             f"*Lead type:* {qualification.lead_type}\n"
+            f"*Lead tags:* {lead_tags_line}\n"
             f"*Score:* {qualification.score}/100\n"
             f"{author_line}"
             f"\n"
@@ -97,7 +112,9 @@ class SlackPoster:
             f"*Signal:*\n*{signal.title}*\n"
             f"{excerpt}\n"
             f"\n"
-            f"🔗 <{signal.url}|View original post>"
+            f"🔗 <{signal.url}|View original post>\n"
+            f"\n"
+            f"*Feedback needed:*\n{feedback_instruction(lead_id)}"
         )
 
         try:
@@ -108,7 +125,8 @@ class SlackPoster:
                 unfurl_media=False,
             )
             logger.info(
-                "Posted qualified signal: score=%s type=%s title=%s",
+                "Posted qualified signal: lead_id=%s score=%s type=%s title=%s",
+                lead_id,
                 qualification.score,
                 signal.signal_type.value,
                 signal.title[:50],
@@ -149,6 +167,7 @@ class SlackPoster:
             f"{datetime.now(timezone.utc).strftime('%B %d, %Y')}*\n"
             f"Found *{len(qualifications)}* qualified signals for Darwin\n"
             f"_Low-quality, past-event and generic signals were held back._\n"
+            f"_Each lead now includes a Lead ID and feedback instructions for the intelligence tracker._\n"
             f"{'━' * 30}"
         )
 
