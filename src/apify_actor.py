@@ -168,10 +168,14 @@ async def _run_from_input(actor_input: dict[str, Any]) -> dict[str, Any]:
     max_events = _as_int(actor_input.get("max_events"), default=2)
     scanner_timeout = _as_int(actor_input.get("scanner_timeout_seconds"), default=90)
     platforms = _as_platforms(actor_input.get("platforms"), default=["twitter"])
+    smart_source_scanning = _as_bool(actor_input.get("smart_source_scanning"), default=False)
+    smart_extra_queries = _as_int(actor_input.get("smart_source_extra_queries_per_event"), default=6)
 
     os.environ["SCAN_MAX_EVENTS"] = str(max_events)
     os.environ["SCANNER_TIMEOUT_SECONDS"] = str(scanner_timeout)
     os.environ["SCAN_PLATFORMS"] = ",".join(platforms)
+    os.environ["SMART_SOURCE_SCANNING"] = "1" if smart_source_scanning else ""
+    os.environ["SMART_SOURCE_EXTRA_QUERIES_PER_EVENT"] = str(smart_extra_queries)
 
     country_label = _countries_label(countries)
 
@@ -181,16 +185,19 @@ async def _run_from_input(actor_input: dict[str, Any]) -> dict[str, Any]:
     logger.info("Max events per country: %s", max_events)
     logger.info("Platforms: %s", ", ".join(platforms))
     logger.info("Per-scanner timeout: %s seconds", scanner_timeout)
+    logger.info("Smart source scanning: %s", "enabled" if smart_source_scanning else "disabled")
     logger.info("=" * 50)
 
     started_at = datetime.now(timezone.utc)
 
     if notify_slack:
+        smart_line = "Enabled" if smart_source_scanning else "Disabled"
         _post_slack_status(
             "🚀 *Apify Social Listener run started*\n"
             f"*Countries:* `{country_label}`\n"
             f"*Platforms:* `{', '.join(platforms)}`\n"
             f"*Max events per country:* `{max_events}`\n"
+            f"*Smart source scanning:* `{smart_line}`\n"
             "_Running one-off scan now._"
         )
 
@@ -228,6 +235,8 @@ async def _run_from_input(actor_input: dict[str, Any]) -> dict[str, Any]:
         "platforms": platforms,
         "max_events_per_country": max_events,
         "scanner_timeout_seconds": scanner_timeout,
+        "smart_source_scanning": smart_source_scanning,
+        "smart_source_extra_queries_per_event": smart_extra_queries,
         "signals_posted_to_slack": total_posted,
         "signals_posted_by_country": posted_by_country,
         "errors": errors,
@@ -239,11 +248,13 @@ async def _run_from_input(actor_input: dict[str, Any]) -> dict[str, Any]:
 
     if notify_slack:
         reddit_line = "Enabled" if reddit_enabled else "Skipped until Reddit credentials are added"
+        smart_line = "Enabled" if smart_source_scanning else "Disabled"
         per_country_line = ", ".join(f"{country}: {count}" for country, count in posted_by_country.items()) or "none"
         message = (
             "✅ *Apify Social Listener run completed*\n"
             f"*Countries:* `{country_label}`\n"
             f"*Platforms:* `{', '.join(platforms)}`\n"
+            f"*Smart source scanning:* `{smart_line}`\n"
             f"*Signals posted:* `{total_posted}`\n"
             f"*Per country:* `{per_country_line}`\n"
             f"*Reddit:* {reddit_line}\n"
