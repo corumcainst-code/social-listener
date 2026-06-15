@@ -1,0 +1,283 @@
+{
+  "version": "0.14",
+  "purpose": "Optional smart public source scanning for SplitStay Social Listener. This is public/searchable-only and is not enabled unless actor input smart_source_scanning=true.",
+  "public_sources_only": true,
+  "blocked_sources": [
+    "private groups",
+    "locked accounts",
+    "login-only pages",
+    "private messages",
+    "WhatsApp groups",
+    "automated outreach",
+    "scraping behind authentication"
+  ],
+  "global_intent_phrases": [
+    "split hotel",
+    "hotel share",
+    "share accommodation",
+    "share accom",
+    "room share",
+    "roommate",
+    "spare bed",
+    "anyone got a room",
+    "anyone need a room",
+    "where is everyone staying",
+    "where are people staying",
+    "travelling alone",
+    "traveling alone",
+    "going alone",
+    "hotels are expensive",
+    "hotel prices",
+    "airbnb prices",
+    "need somewhere to stay",
+    "looking for accommodation",
+    "group accommodation",
+    "stay near the venue"
+  ],
+  "global_surface_terms": [
+    "facebook event",
+    "facebook group",
+    "event page",
+    "comments",
+    "comment section",
+    "thread",
+    "discussion",
+    "group chat",
+    "telegram group",
+    "discord",
+    "whatsapp group"
+  ],
+  "countries": {
+    "uk": {
+      "priority_focus": [
+        "HYROX",
+        "fitness competitions",
+        "music festivals",
+        "conferences",
+        "university events",
+        "major concerts"
+      ],
+      "event_aliases": [
+        "HYROX London",
+        "HYROX Birmingham",
+        "London ExCeL",
+        "Birmingham NEC"
+      ],
+      "intent_phrases": [
+        "split hotel",
+        "share accommodation",
+        "travelling alone",
+        "where is everyone staying",
+        "hotel prices",
+        "need somewhere to stay"
+      ],
+      "surface_terms": [
+        "facebook event",
+        "facebook group",
+        "comments",
+        "thread",
+        "telegram group",
+        "discord"
+      ]
+    },
+    "spain": {
+      "priority_focus": [
+        "HYROX",
+        "fitness competitions",
+        "festivals",
+        "conferences",
+        "sport events"
+      ],
+      "event_aliases": [
+        "HYROX Barcelona",
+        "HYROX Valencia",
+        "HYROX Tenerife"
+      ],
+      "intent_phrases": [
+        "compartir hotel",
+        "compartir alojamiento",
+        "busco alojamiento",
+        "alojamiento cerca",
+        "hoteles caros",
+        "viajo solo"
+      ],
+      "surface_terms": [
+        "grupo facebook",
+        "evento facebook",
+        "comentarios",
+        "grupo telegram",
+        "foro"
+      ]
+    },
+    "us": {
+      "priority_focus": [
+        "HYROX",
+        "fitness competitions",
+        "conferences",
+        "festivals",
+        "sports tournaments"
+      ],
+      "event_aliases": [
+        "HYROX Washington DC",
+        "HYROX Boston",
+        "HYROX Dallas",
+        "HYROX Anaheim",
+        "HYROX Tampa",
+        "HYROX Salt Lake City"
+      ],
+      "intent_phrases": [
+        "split hotel",
+        "hotel share",
+        "share an Airbnb",
+        "room share",
+        "travelling alone",
+        "traveling alone",
+        "where is everyone staying"
+      ],
+      "surface_terms": [
+        "facebook event",
+        "facebook group",
+        "comments",
+        "reddit thread",
+        "discord",
+        "telegram"
+      ]
+    },
+    "brazil": {
+      "priority_focus": [
+        "HYROX",
+        "fitness events",
+        "festivals",
+        "conferences"
+      ],
+      "event_aliases": [
+        "HYROX São Paulo",
+        "HYROX Sao Paulo",
+        "HYROX Rio de Janeiro"
+      ],
+      "intent_phrases": [
+        "dividir hotel",
+        "compartilhar hospedagem",
+        "procuro hospedagem",
+        "hoteis caros",
+        "hotel caro",
+        "viajando sozinho"
+      ],
+      "surface_terms": [
+        "grupo facebook",
+        "evento facebook",
+        "comentarios",
+        "grupo telegram"
+      ]
+    },
+    "germany": {
+      "priority_focus": [
+        "HYROX",
+        "fitness competitions",
+        "festivals",
+        "conferences"
+      ],
+      "event_aliases": [
+        "HYROX Hamburg",
+        "HYROX Frankfurt",
+        "HYROX Düsseldorf",
+        "HYROX Dusseldorf",
+        "HYROX Karlsruhe"
+      ],
+      "intent_phrases": [
+        "hotel teilen",
+        "unterkunft teilen",
+        "zimmer teilen",
+        "suche unterkunft",
+        "alleine reisen",
+        "hotels teuer"
+      ],
+      "surface_terms": [
+        "facebook veranstaltung",
+        "facebook gruppe",
+        "kommentare",
+        "telegram gruppe",
+        "forum"
+      ]
+    },
+    "taiwan": {
+      "priority_focus": [
+        "fitness competitions",
+        "music events",
+        "conferences",
+        "student events"
+      ],
+      "event_aliases": [],
+      "intent_phrases": [
+        "share hotel",
+        "room share",
+        "looking for accommodation",
+        "travelling alone",
+        "where is everyone staying",
+        "hotel prices"
+      ],
+      "surface_terms": [
+        "facebook event",
+        "facebook group",
+        "comments",
+        "telegram group",
+        "forum"
+      ]
+    },
+    "china": {
+      "priority_focus": [
+        "HYROX",
+        "fitness competitions",
+        "conferences",
+        "sport events"
+      ],
+      "event_aliases": [
+        "HYROX Shanghai",
+        "HYROX Beijing",
+        "HYROX Shenzhen",
+        "HYROX Chengdu",
+        "HYROX Hangzhou",
+        "HYROX Guangzhou"
+      ],
+      "intent_phrases": [
+        "share hotel",
+        "room share",
+        "looking for accommodation",
+        "travelling alone",
+        "where is everyone staying",
+        "hotel prices"
+      ],
+      "surface_terms": [
+        "public event",
+        "public group",
+        "comments",
+        "thread",
+        "forum"
+      ]
+    },
+    "portugal": {
+      "priority_focus": [
+        "fitness competitions",
+        "festivals",
+        "conferences",
+        "student events"
+      ],
+      "event_aliases": [],
+      "intent_phrases": [
+        "dividir hotel",
+        "partilhar alojamento",
+        "procurar alojamento",
+        "viajar sozinho",
+        "hotéis caros",
+        "hotel caro"
+      ],
+      "surface_terms": [
+        "evento facebook",
+        "grupo facebook",
+        "comentarios",
+        "grupo telegram",
+        "forum"
+      ]
+    }
+  }
+}
