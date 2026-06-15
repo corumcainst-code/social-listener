@@ -15,15 +15,18 @@ This scanner is deliberately limited to public/searchable web results. It does
 not log in to Facebook, Instagram, TikTok, Discord, or Telegram, and it cannot
 read private groups, locked profiles, or hidden comment threads.
 
-For priority verticals like HYROX, it searches city/event keywords with stronger
-intent phrases such as hotel share, room share, accommodation, group chat,
-"where is everyone staying", "anyone going", and event/group/comment surfaces.
+v0.14 adds optional Smart Source Scanning. It is OFF by default and only turns
+on when SMART_SOURCE_SCANNING is set by the Apify input flag
+``smart_source_scanning=true``. The current scheduled batches stay unchanged
+unless that flag is deliberately added later.
 """
 
 from __future__ import annotations
 
+import json
 import logging
 import os
+from pathlib import Path
 from urllib.parse import parse_qs, quote_plus, unquote, urlparse
 
 import httpx
@@ -34,6 +37,8 @@ from src.models import Event, Platform, Signal, SignalType
 from src.platforms.base import Scanner
 
 logger = logging.getLogger(__name__)
+
+CONFIG_DIR = Path(__file__).parent.parent.parent / "config"
 
 # Site-scoped search prefixes for DuckDuckGo
 _SITE_PREFIXES: dict[str, str] = {
@@ -182,6 +187,35 @@ def _int_env(name: str, default: int) -> int:
         return default
 
 
+def _bool_env(name: str, default: bool = False) -> bool:
+    raw = os.getenv(name)
+    if raw in (None, ""):
+        return default
+    return str(raw).strip().lower() in {"1", "true", "yes", "y", "on"}
+
+
+def _load_source_map() -> dict:
+    """Load optional v0.14 public source map.
+
+    The file is additive only. If it is missing or invalid, the scanner falls
+    back to the existing query behaviour.
+    """
+    path = CONFIG_DIR / "source_map.json"
+    if not path.exists():
+        return {}
+
+    try:
+        with open(path, encoding="utf-8") as f:
+            data = json.load(f)
+        if not data.get("public_sources_only", True):
+            logger.warning("source_map.json must remain public-sources-only; ignoring source map")
+            return {}
+        return data
+    except Exception as exc:
+        logger.warning("Could not load source_map.json: %s", exc)
+        return {}
+
+
 class WebSearchScanner(Scanner):
     """Searches a specific platform via DuckDuckGo HTML (no API key)."""
 
@@ -212,7 +246,7 @@ class WebSearchScanner(Scanner):
             headers={"User-Agent": "SplitStay Social Listener v1.0"},
         ) as client:
             for event in events:
-                queries = self._queries_for_event(event)
+                queries = self._queries_for_event(event, country)
                 logger.info("  %s: %s search queries for %s", self.name, len(queries), event.name)
 
                 for query in queries:
@@ -231,13 +265,15 @@ class WebSearchScanner(Scanner):
     # Query building
     # ------------------------------------------------------------------
 
-    def _queries_for_event(self, event: Event) -> list[str]:
+    def _queries_for_event(self, event: Event, country: str) -> list[str]:
         """Build search queries that are specific enough to be useful.
 
         HYROX and other event-led scans need more than generic accommodation
         searches. We search for public event pages, group pages, captions and
         comment-like snippets where people are asking where to stay, looking for
         rooms, or forming travel/accommodation groups.
+
+        Smart Source Scanning is additive and OFF by default.
         """
         max_queries = _int_env("WEB_SEARCH_MAX_QUERIES_PER_EVENT", 8)
         event_type = (event.type or "").lower()
@@ -273,24 +309,80 @@ class WebSearchScanner(Scanner):
                     f'{self._site_prefix} hyrox "anyone going" hotel',
                 ])
 
-            return self._unique(queries)[:max_queries]
+        else:
+            # Standard event search for festivals/conferences/other events.
+            if event.name:
+                queries.extend(self._platform_queries_for_keyword(event.name))
 
-        # Standard event search for festivals/conferences/other events.
-        if event.name:
-            queries.extend(self._platform_queries_for_keyword(event.name))
+            for kw in keywords[:3]:
+                queries.extend(self._platform_queries_for_keyword(kw))
 
-        for kw in keywords[:3]:
-            queries.extend(self._platform_queries_for_keyword(kw))
+            if event.location:
+                # Do not quote full multi-city strings like "London / Manchester".
+                for part in event.location.replace("/", ",").split(",")[:3]:
+                    location = part.strip()
+                    if location:
+                        queries.append(f'{self._site_prefix} "{location}" "{event.name}" hotel room')
+                        queries.append(f'{self._site_prefix} "{location}" "{event.name}" "where is everyone staying"')
 
-        if event.location:
-            # Do not quote full multi-city strings like "London / Manchester".
-            for part in event.location.replace("/", ",").split(",")[:3]:
-                location = part.strip()
-                if location:
-                    queries.append(f'{self._site_prefix} "{location}" "{event.name}" hotel room')
-                    queries.append(f'{self._site_prefix} "{location}" "{event.name}" "where is everyone staying"')
+        if _bool_env("SMART_SOURCE_SCANNING", default=False):
+            smart_queries = self._smart_source_queries_for_event(event, country, keywords)
+            queries.extend(smart_queries)
+            max_queries += _int_env("SMART_SOURCE_EXTRA_QUERIES_PER_EVENT", 6)
+            logger.info("  %s: Smart Source Scanning enabled for %s", self.name, country)
 
         return self._unique(queries)[:max_queries]
+
+    def _smart_source_queries_for_event(
+        self,
+        event: Event,
+        country: str,
+        keywords: list[str],
+    ) -> list[str]:
+        """Build extra source-map-led queries for public/searchable surfaces only."""
+        source_map = _load_source_map()
+        if not source_map:
+            return []
+
+        country_map = source_map.get("countries", {}).get(country, {})
+        global_intents = source_map.get("global_intent_phrases", [])
+        country_intents = country_map.get("intent_phrases", [])
+        country_aliases = country_map.get("event_aliases", [])
+        global_surfaces = source_map.get("global_surface_terms", [])
+        country_surfaces = country_map.get("surface_terms", [])
+
+        intent_phrases = self._unique([*country_intents, *global_intents])
+        surface_terms = self._unique([*country_surfaces, *global_surfaces])
+
+        event_terms = self._unique([
+            event.name,
+            *country_aliases[:4],
+            *[kw for kw in keywords if kw],
+        ])
+        event_terms = [term for term in event_terms if term and str(term).strip()]
+
+        queries: list[str] = []
+
+        # High-intent queries: event + accommodation/room-share/cost-pain phrase.
+        for event_term in event_terms[:4]:
+            for phrase in intent_phrases[:6]:
+                queries.append(f'{self._site_prefix} "{event_term}" "{phrase}"')
+
+        # Surface-aware queries: public event pages, public groups, comments, forums.
+        for event_term in event_terms[:3]:
+            for surface in surface_terms[:4]:
+                queries.append(f'{self._site_prefix} "{event_term}" "{surface}" accommodation')
+
+        # Location-intent queries catch cases where people mention the venue/city.
+        if event.location:
+            for part in event.location.replace("/", ",").split(",")[:2]:
+                location = part.strip()
+                if location:
+                    queries.append(f'{self._site_prefix} "{location}" "{event.name}" "hotel prices"')
+                    queries.append(f'{self._site_prefix} "{location}" "{event.name}" "need somewhere to stay"')
+                    queries.append(f'{self._site_prefix} "{location}" "{event.name}" "travelling alone"')
+
+        return self._unique(queries)
 
     def _platform_queries_for_keyword(self, keyword: str) -> list[str]:
         """Return platform-specific search patterns for one event keyword."""
@@ -387,6 +479,8 @@ class WebSearchScanner(Scanner):
         snippet = result["snippet"][:300]
         if source_context:
             snippet = f"Source context: {source_context}\n{snippet}"
+        if _bool_env("SMART_SOURCE_SCANNING", default=False):
+            snippet = f"Smart source scan: enabled\n{snippet}"
 
         return Signal(
             id=f"{self._platform_name}_{hash(result['url']) & 0xFFFFFFFF:08x}",
