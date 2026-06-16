@@ -15,10 +15,13 @@ This scanner is deliberately limited to public/searchable web results. It does
 not log in to Facebook, Instagram, TikTok, Discord, or Telegram, and it cannot
 read private groups, locked profiles, or hidden comment threads.
 
-v0.14 adds optional Smart Source Scanning. It is OFF by default and only turns
-on when SMART_SOURCE_SCANNING is set by the Apify input flag
-``smart_source_scanning=true``. The current scheduled batches stay unchanged
-unless that flag is deliberately added later.
+v0.14 adds optional Smart Source Scanning. v0.14.1 keeps that feature OFF by
+default but makes it much lighter when enabled:
+- fewer total queries per platform/event
+- shorter per-query web-search timeout
+- configurable base/smart query counts
+
+It remains limited to public/searchable web results only.
 """
 
 from __future__ import annotations
@@ -241,8 +244,9 @@ class WebSearchScanner(Scanner):
     ) -> list[Signal]:
         signals: list[Signal] = []
 
+        http_timeout = _int_env("WEB_SEARCH_HTTP_TIMEOUT_SECONDS", 12)
         async with httpx.AsyncClient(
-            timeout=30.0,
+            timeout=http_timeout,
             headers={"User-Agent": "SplitStay Social Listener v1.0"},
         ) as client:
             for event in events:
@@ -326,10 +330,24 @@ class WebSearchScanner(Scanner):
                         queries.append(f'{self._site_prefix} "{location}" "{event.name}" "where is everyone staying"')
 
         if _bool_env("SMART_SOURCE_SCANNING", default=False):
+            # v0.14.1 light mode:
+            # Keep only a very small mix of the existing high-confidence queries
+            # plus a few source-map-led smart queries. This avoids the full-batch
+            # timeout we saw when v0.14 generated too many search URLs.
             smart_queries = self._smart_source_queries_for_event(event, country, keywords)
-            queries.extend(smart_queries)
-            max_queries += _int_env("SMART_SOURCE_EXTRA_QUERIES_PER_EVENT", 6)
-            logger.info("  %s: Smart Source Scanning enabled for %s", self.name, country)
+
+            base_keep = _int_env("SMART_SOURCE_BASE_QUERIES_PER_EVENT", 1)
+            smart_keep = _int_env("SMART_SOURCE_EXTRA_QUERIES_PER_EVENT", 2)
+            light_queries = self._unique(queries[:base_keep] + smart_queries[:smart_keep])
+
+            logger.info(
+                "  %s: Smart Source Scanning LIGHT enabled for %s (%s base + %s smart queries)",
+                self.name,
+                country,
+                base_keep,
+                smart_keep,
+            )
+            return light_queries
 
         return self._unique(queries)[:max_queries]
 
@@ -363,24 +381,29 @@ class WebSearchScanner(Scanner):
 
         queries: list[str] = []
 
+        # v0.14.1 light mode: generate a small ordered list only.
+        # The caller then takes just the first few smart queries.
+        primary_event_terms = event_terms[:2]
+        primary_intents = intent_phrases[:3]
+        primary_surfaces = surface_terms[:2]
+
         # High-intent queries: event + accommodation/room-share/cost-pain phrase.
-        for event_term in event_terms[:4]:
-            for phrase in intent_phrases[:6]:
+        for event_term in primary_event_terms:
+            for phrase in primary_intents:
                 queries.append(f'{self._site_prefix} "{event_term}" "{phrase}"')
 
         # Surface-aware queries: public event pages, public groups, comments, forums.
-        for event_term in event_terms[:3]:
-            for surface in surface_terms[:4]:
+        # Keep this small; broad surface queries caused slow batch runs in v0.14.
+        for event_term in primary_event_terms[:1]:
+            for surface in primary_surfaces:
                 queries.append(f'{self._site_prefix} "{event_term}" "{surface}" accommodation')
 
         # Location-intent queries catch cases where people mention the venue/city.
         if event.location:
-            for part in event.location.replace("/", ",").split(",")[:2]:
+            for part in event.location.replace("/", ",").split(",")[:1]:
                 location = part.strip()
                 if location:
-                    queries.append(f'{self._site_prefix} "{location}" "{event.name}" "hotel prices"')
                     queries.append(f'{self._site_prefix} "{location}" "{event.name}" "need somewhere to stay"')
-                    queries.append(f'{self._site_prefix} "{location}" "{event.name}" "travelling alone"')
 
         return self._unique(queries)
 
