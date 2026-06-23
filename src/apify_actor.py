@@ -85,6 +85,21 @@ def _as_int(value: Any, default: int) -> int:
         return default
 
 
+def _as_text(value: Any, default: str = "") -> str:
+    if value in (None, ""):
+        return default
+    text = str(value).strip()
+    return text or default
+
+
+def _slack_line(label: str, value: str, *, code: bool = False) -> str:
+    if not value:
+        return ""
+    if code:
+        return f"*{label}:* `{value}`\n"
+    return f"*{label}:* {value}\n"
+
+
 def _as_platforms(value: Any, default: list[str]) -> list[str]:
     if value in (None, ""):
         return default
@@ -169,6 +184,9 @@ async def _run_from_input(actor_input: dict[str, Any]) -> dict[str, Any]:
     scanner_timeout = _as_int(actor_input.get("scanner_timeout_seconds"), default=90)
     platforms = _as_platforms(actor_input.get("platforms"), default=["twitter"])
     smart_source_scanning = _as_bool(actor_input.get("smart_source_scanning"), default=False)
+    campaign_name = _as_text(actor_input.get("campaign_name") or actor_input.get("campaign"))
+    campaign_focus = _as_text(actor_input.get("campaign_focus"))
+    run_type = _as_text(actor_input.get("run_type"), default="Scan")
 
     # v0.14.1 light smart scan defaults.
     # These keep smart scanning useful without letting a daily batch explode into
@@ -189,6 +207,11 @@ async def _run_from_input(actor_input: dict[str, Any]) -> dict[str, Any]:
 
     logger.info("=" * 50)
     logger.info("Apify Social Listener — one-off scan")
+    if campaign_name:
+        logger.info("Campaign: %s", campaign_name)
+    if campaign_focus:
+        logger.info("Campaign focus: %s", campaign_focus)
+    logger.info("Run type: %s", run_type)
     logger.info("Countries: %s", country_label)
     logger.info("Max events per country: %s", max_events)
     logger.info("Platforms: %s", ", ".join(platforms))
@@ -208,12 +231,15 @@ async def _run_from_input(actor_input: dict[str, Any]) -> dict[str, Any]:
         smart_line = "Enabled" if smart_source_scanning else "Disabled"
         _post_slack_status(
             "🚀 *Apify Social Listener run started*\n"
+            f"{_slack_line('Campaign', campaign_name, code=True)}"
+            f"{_slack_line('Focus', campaign_focus)}"
+            f"{_slack_line('Run type', run_type, code=True)}"
             f"*Countries:* `{country_label}`\n"
             f"*Platforms:* `{', '.join(platforms)}`\n"
             f"*Max events per country:* `{max_events}`\n"
             f"*Smart source scanning:* `{smart_line}`\n"
             f"*Smart scan mode:* `Light ({smart_base_queries}+{smart_extra_queries} queries, {web_search_http_timeout}s HTTP timeout)`\n"
-            "_Running one-off scan now._"
+            "_Running scan now._"
         )
 
     posted_by_country: dict[str, int] = {}
@@ -245,6 +271,9 @@ async def _run_from_input(actor_input: dict[str, Any]) -> dict[str, Any]:
 
     result = {
         "status": "partial_failed" if errors else "succeeded",
+        "campaign_name": campaign_name,
+        "campaign_focus": campaign_focus,
+        "run_type": run_type,
         "country": countries[0] if len(countries) == 1 else "all",
         "countries": countries,
         "platforms": platforms,
@@ -269,8 +298,12 @@ async def _run_from_input(actor_input: dict[str, Any]) -> dict[str, Any]:
         per_country_line = ", ".join(f"{country}: {count}" for country, count in posted_by_country.items()) or "none"
         message = (
             "✅ *Apify Social Listener run completed*\n"
+            f"{_slack_line('Campaign', campaign_name, code=True)}"
+            f"{_slack_line('Focus', campaign_focus)}"
+            f"{_slack_line('Run type', run_type, code=True)}"
             f"*Countries:* `{country_label}`\n"
             f"*Platforms:* `{', '.join(platforms)}`\n"
+            f"*Max events per country:* `{max_events}`\n"
             f"*Smart source scanning:* `{smart_line}`\n"
             f"*Smart scan mode:* `Light ({smart_base_queries}+{smart_extra_queries} queries, {web_search_http_timeout}s HTTP timeout)`\n"
             f"*Signals posted:* `{total_posted}`\n"
