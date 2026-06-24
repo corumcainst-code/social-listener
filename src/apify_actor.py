@@ -31,7 +31,7 @@ from typing import Any
 from slack_sdk import WebClient
 from slack_sdk.errors import SlackApiError
 
-from src.scanner import scan_country
+from src.scanner import scan_country_diagnostics
 
 try:
     from apify import Actor
@@ -175,6 +175,74 @@ def _post_slack_status(message: str) -> bool:
         return False
 
 
+
+
+def _diagnostic_totals(scan_diagnostics: dict[str, dict[str, Any]]) -> dict[str, int]:
+    totals = {
+        "events_scanned": 0,
+        "scanners_attempted": 0,
+        "scanners_succeeded": 0,
+        "raw_signals_found": 0,
+        "qualified_new_signals": 0,
+        "signals_posted": 0,
+        "scanner_timeouts": 0,
+        "scanner_errors": 0,
+    }
+    for details in scan_diagnostics.values():
+        totals["events_scanned"] += int(details.get("events_scanned", 0) or 0)
+        totals["scanners_attempted"] += int(details.get("scanners_attempted", 0) or 0)
+        totals["scanners_succeeded"] += int(details.get("scanners_succeeded", 0) or 0)
+        totals["raw_signals_found"] += int(details.get("raw_signals_found", 0) or 0)
+        totals["qualified_new_signals"] += int(details.get("qualified_new_signals", 0) or 0)
+        totals["signals_posted"] += int(details.get("signals_posted", 0) or 0)
+        totals["scanner_timeouts"] += len(details.get("scanners_timed_out", []) or [])
+        totals["scanner_errors"] += len(details.get("scanners_failed", {}) or {})
+    return totals
+
+
+def _diagnostic_item_summary(scan_diagnostics: dict[str, dict[str, Any]], key: str) -> str:
+    items: list[str] = []
+    for country, details in scan_diagnostics.items():
+        if key == "scanners_timed_out":
+            for scanner_name in details.get("scanners_timed_out", []) or []:
+                items.append(f"{country}: {scanner_name}")
+        elif key == "scanners_failed":
+            for scanner_name in (details.get("scanners_failed", {}) or {}).keys():
+                items.append(f"{country}: {scanner_name}")
+    return ", ".join(items) if items else "none"
+
+
+def _diagnostic_result_line(totals: dict[str, int]) -> str:
+    if totals["raw_signals_found"] == 0:
+        return "Scan completed; no raw public lead candidates were found."
+    if totals["qualified_new_signals"] == 0:
+        return "Scan completed; raw candidates were found, but none passed qualification."
+    if totals["signals_posted"] == 0:
+        return "Scan completed; qualified candidates were found, but none were posted to Slack."
+    return "Scan completed; qualified signals were posted to Slack."
+
+
+def _format_scan_diagnostics(scan_diagnostics: dict[str, dict[str, Any]]) -> tuple[str, dict[str, int]]:
+    if not scan_diagnostics:
+        return "", _diagnostic_totals(scan_diagnostics)
+
+    totals = _diagnostic_totals(scan_diagnostics)
+    timed_out_line = _diagnostic_item_summary(scan_diagnostics, "scanners_timed_out")
+    failed_line = _diagnostic_item_summary(scan_diagnostics, "scanners_failed")
+    result_line = _diagnostic_result_line(totals)
+
+    message = (
+        "\n*Scan diagnostics:*\n"
+        f"• Events scanned: `{totals['events_scanned']}`\n"
+        f"• Platform scanners attempted: `{totals['scanners_attempted']}` (`{totals['scanners_succeeded']}` succeeded)\n"
+        f"• Raw candidates found: `{totals['raw_signals_found']}`\n"
+        f"• Qualified new signals: `{totals['qualified_new_signals']}`\n"
+        f"• Scanner timeouts: `{timed_out_line}`\n"
+        f"• Scanner errors: `{failed_line}`\n"
+        f"• Result: {result_line}\n"
+    )
+    return message, totals
+
 async def _run_from_input(actor_input: dict[str, Any]) -> dict[str, Any]:
     countries = _normalise_countries(actor_input)
     notify_slack = _as_bool(actor_input.get("notify_slack"), default=True)
@@ -243,12 +311,15 @@ async def _run_from_input(actor_input: dict[str, Any]) -> dict[str, Any]:
         )
 
     posted_by_country: dict[str, int] = {}
+    scan_diagnostics: dict[str, dict[str, Any]] = {}
     errors: dict[str, str] = {}
 
     for index, country in enumerate(countries, start=1):
         logger.info("Starting country %s/%s: %s", index, len(countries), country.upper())
         try:
-            posted_by_country[country] = await scan_country(country)
+            country_diagnostics = await scan_country_diagnostics(country)
+            scan_diagnostics[country] = country_diagnostics.to_dict()
+            posted_by_country[country] = country_diagnostics.signals_posted
         except Exception as exc:
             error_text = "".join(traceback.format_exception_only(type(exc), exc)).strip()
             errors[country] = error_text
@@ -268,6 +339,7 @@ async def _run_from_input(actor_input: dict[str, Any]) -> dict[str, Any]:
     duration_seconds = round((finished_at - started_at).total_seconds(), 2)
     total_posted = sum(posted_by_country.values())
     reddit_enabled = bool(os.getenv("REDDIT_CLIENT_ID") and os.getenv("REDDIT_CLIENT_SECRET"))
+    diagnostics_message, diagnostic_totals = _format_scan_diagnostics(scan_diagnostics)
 
     result = {
         "status": "partial_failed" if errors else "succeeded",
@@ -285,6 +357,8 @@ async def _run_from_input(actor_input: dict[str, Any]) -> dict[str, Any]:
         "web_search_http_timeout_seconds": web_search_http_timeout,
         "signals_posted_to_slack": total_posted,
         "signals_posted_by_country": posted_by_country,
+        "scan_diagnostics": scan_diagnostics,
+        "diagnostic_totals": diagnostic_totals,
         "errors": errors,
         "started_at": started_at.isoformat(),
         "finished_at": finished_at.isoformat(),
@@ -308,6 +382,7 @@ async def _run_from_input(actor_input: dict[str, Any]) -> dict[str, Any]:
             f"*Smart scan mode:* `Light ({smart_base_queries}+{smart_extra_queries} queries, {web_search_http_timeout}s HTTP timeout)`\n"
             f"*Signals posted:* `{total_posted}`\n"
             f"*Per country:* `{per_country_line}`\n"
+            f"{diagnostics_message}"
             f"*Reddit:* {reddit_line}\n"
             f"*Duration:* `{duration_seconds}s`"
         )
