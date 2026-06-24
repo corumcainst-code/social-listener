@@ -9,6 +9,13 @@ Adds Darwin quality controls:
 - past events are filtered before scanning
 - priority events such as HYROX are merged from config/priority_events.json
 - raw signals are qualified/scored before Slack posting
+
+Adds v0.16 scan diagnostics:
+- events scanned
+- scanners attempted/succeeded/timed out/failed
+- raw candidates found
+- qualified new signals
+- posted signals
 """
 
 from __future__ import annotations
@@ -19,8 +26,10 @@ import json
 import logging
 import os
 import sys
+from dataclasses import dataclass, field
 from datetime import datetime, timezone
 from pathlib import Path
+from typing import Any
 
 from dotenv import load_dotenv
 
@@ -43,6 +52,40 @@ logger = logging.getLogger(__name__)
 CONFIG_DIR = Path(__file__).parent.parent / "config"
 STATE_DIR = Path(__file__).parent.parent / "data" / "state"
 WEB_PLATFORMS = ("facebook", "instagram", "discord", "tiktok", "telegram")
+
+
+@dataclass
+class CountryScanDiagnostics:
+    """Structured scan diagnostics for Slack and Apify output."""
+
+    country: str
+    configured_events: int = 0
+    future_events: int = 0
+    events_scanned: int = 0
+    scanners_attempted: int = 0
+    scanners_succeeded: int = 0
+    scanners_timed_out: list[str] = field(default_factory=list)
+    scanners_failed: dict[str, str] = field(default_factory=dict)
+    raw_signals_found: int = 0
+    qualified_new_signals: int = 0
+    signals_posted: int = 0
+    no_scanners_enabled: bool = False
+
+    def to_dict(self) -> dict[str, Any]:
+        return {
+            "country": self.country,
+            "configured_events": self.configured_events,
+            "future_events": self.future_events,
+            "events_scanned": self.events_scanned,
+            "scanners_attempted": self.scanners_attempted,
+            "scanners_succeeded": self.scanners_succeeded,
+            "scanners_timed_out": self.scanners_timed_out,
+            "scanners_failed": self.scanners_failed,
+            "raw_signals_found": self.raw_signals_found,
+            "qualified_new_signals": self.qualified_new_signals,
+            "signals_posted": self.signals_posted,
+            "no_scanners_enabled": self.no_scanners_enabled,
+        }
 
 
 def _int_env(name: str, default: int) -> int:
@@ -170,19 +213,21 @@ def build_scanners(config: CountryConfig) -> list[Scanner]:
     return scanners
 
 
-async def scan_country(country: str) -> int:
+async def scan_country_diagnostics(country: str) -> CountryScanDiagnostics:
     logger.info("%s", "=" * 40)
     logger.info("Starting scan: %s", country.upper())
     logger.info("%s", "=" * 40)
 
     config = merge_priority_events(load_config(country))
+    diagnostics = CountryScanDiagnostics(country=country)
 
-    original_event_count = len(config.events)
+    diagnostics.configured_events = len(config.events)
     config.events = filter_future_events(config.events)
+    diagnostics.future_events = len(config.events)
     logger.info(
         "Future-event filter: scanning %s of %s configured events",
-        len(config.events),
-        original_event_count,
+        diagnostics.future_events,
+        diagnostics.configured_events,
     )
 
     max_events = _int_env("SCAN_MAX_EVENTS", 0)
@@ -195,12 +240,15 @@ async def scan_country(country: str) -> int:
             original_count,
         )
 
+    diagnostics.events_scanned = len(config.events)
     state = load_state(country)
     scanners = build_scanners(config)
+    diagnostics.scanners_attempted = len(scanners)
 
     if not scanners:
+        diagnostics.no_scanners_enabled = True
         logger.warning("No scanners enabled — nothing to do")
-        return 0
+        return diagnostics
 
     scanner_timeout = _int_env("SCANNER_TIMEOUT_SECONDS", 120)
     logger.info("Per-scanner timeout: %s seconds", scanner_timeout)
@@ -214,18 +262,23 @@ async def scan_country(country: str) -> int:
                 timeout=scanner_timeout,
             )
             all_signals.extend(signals)
+            diagnostics.scanners_succeeded += 1
             logger.info("  %s: %s signals", scanner.name, len(signals))
         except asyncio.TimeoutError:
+            diagnostics.scanners_timed_out.append(scanner.name)
             logger.warning(
                 "  %s timed out after %s seconds — continuing with next scanner",
                 scanner.name,
                 scanner_timeout,
             )
         except Exception as e:
+            diagnostics.scanners_failed[scanner.name] = str(e)
             logger.error("  %s failed: %s", scanner.name, e)
 
+    diagnostics.raw_signals_found = len(all_signals)
     processor = SignalProcessor(state, max_age_days=60, events=config.events)
     new_signals = processor.process(all_signals)
+    diagnostics.qualified_new_signals = len(new_signals)
     logger.info("Total: %s raw → %s qualified new signals", len(all_signals), len(new_signals))
 
     posted = 0
@@ -256,12 +309,20 @@ async def scan_country(country: str) -> int:
             for s in new_signals:
                 logger.info("  [%s] %s — %s", s.signal_type.value, s.title[:60], s.url)
 
+    diagnostics.signals_posted = posted
     state.last_scan = datetime.now(timezone.utc).isoformat()
     state.scan_count += 1
     save_state(country, state)
 
     logger.info("Scan complete: %s — %s signals posted", country.upper(), posted)
-    return posted
+    logger.info("Scan diagnostics: %s", diagnostics.to_dict())
+    return diagnostics
+
+
+async def scan_country(country: str) -> int:
+    """Backward-compatible helper used by CLI/tests."""
+    diagnostics = await scan_country_diagnostics(country)
+    return diagnostics.signals_posted
 
 
 def main():
