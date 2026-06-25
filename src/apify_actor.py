@@ -187,6 +187,15 @@ def _diagnostic_totals(scan_diagnostics: dict[str, dict[str, Any]]) -> dict[str,
         "signals_posted": 0,
         "scanner_timeouts": 0,
         "scanner_errors": 0,
+        "scored_candidates": 0,
+        "hot_leads": 0,
+        "warm_leads": 0,
+        "low_quality_leads": 0,
+        "filtered_known": 0,
+        "filtered_old": 0,
+        "filtered_empty": 0,
+        "filtered_duplicate": 0,
+        "filtered_low_quality": 0,
     }
     for details in scan_diagnostics.values():
         totals["events_scanned"] += int(details.get("events_scanned", 0) or 0)
@@ -197,6 +206,16 @@ def _diagnostic_totals(scan_diagnostics: dict[str, dict[str, Any]]) -> dict[str,
         totals["signals_posted"] += int(details.get("signals_posted", 0) or 0)
         totals["scanner_timeouts"] += len(details.get("scanners_timed_out", []) or [])
         totals["scanner_errors"] += len(details.get("scanners_failed", {}) or {})
+        processing_stats = details.get("processing_stats", {}) or {}
+        totals["scored_candidates"] += int(processing_stats.get("scored_candidates", 0) or 0)
+        totals["hot_leads"] += int(processing_stats.get("hot_leads", 0) or 0)
+        totals["warm_leads"] += int(processing_stats.get("warm_leads", 0) or 0)
+        totals["low_quality_leads"] += int(processing_stats.get("low_quality_leads", 0) or 0)
+        totals["filtered_known"] += int(processing_stats.get("filtered_known", 0) or 0)
+        totals["filtered_old"] += int(processing_stats.get("filtered_old", 0) or 0)
+        totals["filtered_empty"] += int(processing_stats.get("filtered_empty", 0) or 0)
+        totals["filtered_duplicate"] += int(processing_stats.get("filtered_duplicate", 0) or 0)
+        totals["filtered_low_quality"] += int(processing_stats.get("filtered_low_quality", 0) or 0)
     return totals
 
 

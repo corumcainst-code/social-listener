@@ -15,6 +15,7 @@ from src.intelligence import (
     source_context_label,
 )
 from src.models import Event, Signal, SignalType, TrustpilotReview
+from src.processor import lead_heat, suggested_owner_for_qualification
 from src.qualifier import SignalQualification, build_event_lookup, qualify_signal
 
 logger = logging.getLogger(__name__)
@@ -66,6 +67,8 @@ class SlackPoster:
         lead_tags = build_lead_tags(signal, qualification, event=event)
         lead_tags_line = ", ".join(lead_tags)
         source_context = source_context_label(signal)
+        heat = lead_heat(qualification.score)
+        suggested_owner = suggested_owner_for_qualification(qualification)
 
         # Darwin should only be tagged on qualified high-priority action items.
         tag = ""
@@ -101,11 +104,13 @@ class SlackPoster:
             f"*Signal type:* {display['label']}\n"
             f"*Priority vertical:* {qualification.vertical}\n"
             f"*Lead type:* {qualification.lead_type}\n"
+            f"*Lead heat:* `{heat}`\n"
+            f"*Suggested owner:* `{suggested_owner}`\n"
             f"*Lead tags:* {lead_tags_line}\n"
             f"*Score:* {qualification.score}/100\n"
             f"{author_line}"
             f"\n"
-            f"*Why Darwin should care:*\n{qualification.reason}\n"
+            f"*Why this matters:*\n{qualification.reason}\n"
             f"\n"
             f"*Suggested action:*\n{qualification.action}\n"
             f"\n"
@@ -125,8 +130,9 @@ class SlackPoster:
                 unfurl_media=False,
             )
             logger.info(
-                "Posted qualified signal: lead_id=%s score=%s type=%s title=%s",
+                "Posted qualified signal: lead_id=%s heat=%s score=%s type=%s title=%s",
                 lead_id,
+                heat,
                 qualification.score,
                 signal.signal_type.value,
                 signal.title[:50],
@@ -160,14 +166,18 @@ class SlackPoster:
             logger.info("No qualified signals to post after Slack-side qualification")
             return 0
 
+        hot_count = sum(1 for _, _, q in qualifications if lead_heat(q.score) == "Hot")
+        warm_count = sum(1 for _, _, q in qualifications if lead_heat(q.score) == "Warm")
+
         # Post header
         header = (
             f"{'━' * 30}\n"
             f"{country_emoji} *{country.upper()} QUALIFIED SCAN — "
             f"{datetime.now(timezone.utc).strftime('%B %d, %Y')}*\n"
-            f"Found *{len(qualifications)}* qualified signals for Darwin\n"
+            f"Found *{len(qualifications)}* qualified signals for the team\n"
+            f"*Lead heat:* `{hot_count}` hot, `{warm_count}` warm\n"
             f"_Low-quality, past-event and generic signals were held back._\n"
-            f"_Each lead now includes a Lead ID and feedback instructions for the intelligence tracker._\n"
+            f"_Each lead includes Lead ID, score, suggested owner/action, and feedback instructions._\n"
             f"{'━' * 30}"
         )
 
