@@ -69,6 +69,7 @@ class CountryScanDiagnostics:
     raw_signals_found: int = 0
     qualified_new_signals: int = 0
     signals_posted: int = 0
+    processing_stats: dict[str, Any] = field(default_factory=dict)
     no_scanners_enabled: bool = False
 
     def to_dict(self) -> dict[str, Any]:
@@ -84,6 +85,7 @@ class CountryScanDiagnostics:
             "raw_signals_found": self.raw_signals_found,
             "qualified_new_signals": self.qualified_new_signals,
             "signals_posted": self.signals_posted,
+            "processing_stats": self.processing_stats,
             "no_scanners_enabled": self.no_scanners_enabled,
         }
 
@@ -278,6 +280,7 @@ async def scan_country_diagnostics(country: str) -> CountryScanDiagnostics:
     diagnostics.raw_signals_found = len(all_signals)
     processor = SignalProcessor(state, max_age_days=60, events=config.events)
     new_signals = processor.process(all_signals)
+    diagnostics.processing_stats = processor.last_stats.to_dict()
     diagnostics.qualified_new_signals = len(new_signals)
     logger.info("Total: %s raw → %s qualified new signals", len(all_signals), len(new_signals))
 
